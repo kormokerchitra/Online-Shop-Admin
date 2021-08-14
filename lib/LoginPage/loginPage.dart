@@ -21,7 +21,7 @@ class LoginPageState extends State<LoginPage>
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
   }
 
   @override
@@ -75,7 +75,7 @@ class LoginPageState extends State<LoginPage>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                    child: Text("E-commerce Admin",
+                                    child: Text("Easy Shopping Admin",
                                         style: TextStyle(
                                             color: subheader,
                                             fontSize: 17,

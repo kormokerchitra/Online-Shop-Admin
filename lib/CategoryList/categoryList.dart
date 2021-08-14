@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/main.dart';
+import 'package:http/http.dart' as http;
 
 class CategoryList extends StatefulWidget {
   @override
@@ -7,6 +10,75 @@ class CategoryList extends StatefulWidget {
 }
 
 class _CategoryListState extends State<CategoryList> {
+  var categoryList = [];
+  TextEditingController categoryController = new TextEditingController();
+  TextEditingController categoryEditController = new TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchCategory();
+  }
+
+  Future<void> fetchCategory() async {
+    final response = await http.get(ip + 'easy_shopping/category_list.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var categoryBody = json.decode(response.body);
+      print(categoryBody["cat_list"]);
+      setState(() {
+        categoryList = categoryBody["cat_list"];
+      });
+      print(categoryList.length);
+    } else {
+      throw Exception('Unable to fetch category from the REST API');
+    }
+  }
+
+  Future<void> deleteCategory(String id) async {
+    final response = await http
+        .post(ip + 'easy_shopping/category_delete.php', body: {"id": id});
+    print("id - " + id);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      fetchCategory();
+    } else {
+      throw Exception('Unable to delete category from the REST API');
+    }
+  }
+
+  Future<void> addCategory(String name) async {
+    final response = await http
+        .post(ip + 'easy_shopping/category_add.php', body: {"cat_name": name});
+    print("name - " + name);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      categoryController.clear();
+      fetchCategory();
+    } else {
+      throw Exception('Unable to add caegory from the REST API');
+    }
+  }
+
+  Future<void> editCategory(String name, String id) async {
+    final response =
+        await http.post(ip + 'easy_shopping/category_edit.php', body: {
+      "cat_name": name,
+      "id": id,
+    });
+    print("name - " + name);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      categoryEditController.clear();
+      fetchCategory();
+    } else {
+      throw Exception('Unable to edit caegory from the REST API');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,26 +132,34 @@ class _CategoryListState extends State<CategoryList> {
                                     Border.all(width: 0.3, color: Colors.grey),
                                 borderRadius: BorderRadius.circular(5)),
                             child: TextField(
+                              controller: categoryController,
                               decoration: InputDecoration(
                                   hintText: "Enter category name",
                                   border: InputBorder.none),
                             ),
                           ),
-                          Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.only(bottom: 20, top: 10),
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5.0)),
-                                  color: mainheader,
-                                  border: Border.all(
-                                      width: 0.2, color: Colors.grey)),
-                              child: Text(
-                                "Add",
-                                style: TextStyle(color: Colors.white),
-                                textAlign: TextAlign.center,
-                              )),
+                          GestureDetector(
+                            onTap: () {
+                              if (categoryController.text != "") {
+                                addCategory(categoryController.text);
+                              }
+                            },
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.only(bottom: 20, top: 10),
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5.0)),
+                                    color: mainheader,
+                                    border: Border.all(
+                                        width: 0.2, color: Colors.grey)),
+                                child: Text(
+                                  "Add",
+                                  style: TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                )),
+                          ),
                         ],
                       ),
                     ),
@@ -105,7 +185,7 @@ class _CategoryListState extends State<CategoryList> {
         physics: BouncingScrollPhysics(),
         child: Container(
           child: Column(
-            children: List.generate(10, (index) {
+            children: List.generate(categoryList.length, (index) {
               return GestureDetector(
                 onTap: () {},
                 child: Container(
@@ -127,7 +207,7 @@ class _CategoryListState extends State<CategoryList> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "Category Name",
+                                        "${categoryList[index]["cat_name"]}",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 17,
@@ -150,7 +230,7 @@ class _CategoryListState extends State<CategoryList> {
                                                   width: 3,
                                                 ),
                                                 Text(
-                                                  "20+ Items",
+                                                  "${categoryList[index]["product_count"]} Items",
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.grey),
@@ -171,6 +251,8 @@ class _CategoryListState extends State<CategoryList> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
+                                    categoryEditController.text =
+                                        categoryList[index]["cat_name"];
                                     showDialog(
                                       context: context,
                                       barrierDismissible: true,
@@ -194,6 +276,8 @@ class _CategoryListState extends State<CategoryList> {
                                                           BorderRadius.circular(
                                                               5)),
                                                   child: TextField(
+                                                    controller:
+                                                        categoryEditController,
                                                     decoration: InputDecoration(
                                                         hintText:
                                                             "Enter category name",
@@ -201,31 +285,47 @@ class _CategoryListState extends State<CategoryList> {
                                                             InputBorder.none),
                                                   ),
                                                 ),
-                                                Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 20, top: 10),
-                                                    padding: EdgeInsets.all(10),
-                                                    decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    5.0)),
-                                                        color: mainheader,
-                                                        border: Border.all(
-                                                            width: 0.2,
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    if (categoryEditController
+                                                            .text !=
+                                                        "") {
+                                                      editCategory(
+                                                          categoryEditController
+                                                              .text,
+                                                          categoryList[index]
+                                                              ["id"]);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                              .size
+                                                              .width,
+                                                      margin: EdgeInsets.only(
+                                                          bottom: 20, top: 10),
+                                                      padding:
+                                                          EdgeInsets.all(10),
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          5.0)),
+                                                          color: mainheader,
+                                                          border: Border.all(
+                                                              width: 0.2,
+                                                              color:
+                                                                  Colors.grey)),
+                                                      child: Text(
+                                                        "Edit",
+                                                        style: TextStyle(
                                                             color:
-                                                                Colors.grey)),
-                                                    child: Text(
-                                                      "Edit",
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    )),
+                                                                Colors.white),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      )),
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -271,6 +371,9 @@ class _CategoryListState extends State<CategoryList> {
                                               GestureDetector(
                                                 onTap: () {
                                                   Navigator.pop(context);
+                                                  deleteCategory(
+                                                      categoryList[index]
+                                                          ["id"]);
                                                 },
                                                 child: Padding(
                                                   padding:

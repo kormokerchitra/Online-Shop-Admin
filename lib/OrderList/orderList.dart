@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:online_shopping_admin/OrderList/orderDetails.dart';
 import 'package:online_shopping_admin/main.dart';
+import 'package:http/http.dart' as http;
 
 class OrderList extends StatefulWidget {
   @override
@@ -7,13 +11,28 @@ class OrderList extends StatefulWidget {
 }
 
 class _OrderListState extends State<OrderList> {
-  List statusList = [
-    "Processing",
-    "Picked",
-    "Shipped",
-    "Delivered",
-    "Cancelled"
-  ];
+  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchOrder();
+  }
+
+  Future<void> fetchOrder() async {
+    final response = await http.get(ip + 'easy_shopping/order_details.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var corderBody = json.decode(response.body);
+      print(corderBody["order_list"]);
+      setState(() {
+        orderList = corderBody["order_list"];
+      });
+      print(orderList.length);
+    } else {
+      throw Exception('Unable to fetch order from the REST API');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,153 +70,117 @@ class _OrderListState extends State<OrderList> {
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
         child: Column(
-          children: List.generate(10, (index) {
-            return Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Card(
-                child: Container(
-                  margin: EdgeInsets.only(top: 5, bottom: 5),
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Expanded(
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    "Date : 13/07/2019",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      color: Colors.black87,
-                                    ),
-                                    textAlign: TextAlign.start,
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 5),
-                                    child: Text(
-                                      "Order by Chitra",
+          children: List.generate(orderList.length, (index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OrderDetailsPage(orderList[index])),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(left: 10, right: 10),
+                child: Card(
+                  child: Container(
+                    margin: EdgeInsets.only(top: 5, bottom: 5),
+                    padding: EdgeInsets.all(10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "#${orderList[index]["inv_id"]}",
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.black45,
+                                        fontSize: 17,
+                                        color: Colors.black87,
                                       ),
                                       textAlign: TextAlign.start,
                                     ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 5),
-                                    child: Row(
-                                      children: <Widget>[
-                                        Row(
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.shopping_basket,
-                                              color: Colors.grey,
-                                              size: 17,
-                                            ),
-                                            SizedBox(
-                                              width: 3,
-                                            ),
-                                            Text(
-                                              "4 Items",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.grey),
-                                            ),
-                                          ],
+                                    Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      child: Text(
+                                        "Order by ${orderList[index]["order_by"]}",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black45,
                                         ),
-                                      ],
+                                        textAlign: TextAlign.start,
+                                      ),
                                     ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 5),
-                                    child: Row(
-                                      children: <Widget>[
-                                        Row(
-                                          children: <Widget>[
-                                            Icon(
-                                              Icons.attach_money,
-                                              color: mainheader,
-                                              size: 18,
-                                            ),
-                                            SizedBox(
-                                              width: 3,
-                                            ),
-                                            Text(
-                                              "300.20",
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: mainheader),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            builder: (BuildContext context) {
-                              return Expanded(
-                                child: AlertDialog(
-                                  title: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Change status'),
-                                      Divider(),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: List.generate(statusList.length,
-                                            (index) {
-                                          return GestureDetector(
-                                            onTap: (){
-                                              Navigator.pop(context);
-                                            },
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10.0),
-                                              child: Text(
-                                                statusList[index],
-                                                style: TextStyle(
-                                                    fontSize: 17, color: Colors.grey),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.shopping_basket,
+                                                color: Colors.grey,
+                                                size: 17,
                                               ),
-                                            ),
-                                          );
-                                        }),
-                                      )
-                                    ],
-                                  ),
+                                              SizedBox(
+                                                width: 3,
+                                              ),
+                                              Text(
+                                                "${orderList[index]["total_product"]} Items",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              Text(
+                                                "Total price: ${orderList[index]["total_price"]}/-",
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: mainheader),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      child: Text(
+                                        "Date : ${orderList[index]["delivery_date"]}",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black45,
+                                        ),
+                                        textAlign: TextAlign.start,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(5),
-                          margin: EdgeInsets.only(right: 10),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(width: 0.5, color: mainheader),
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Text(
-                            "New",
-                            style: TextStyle(fontSize: 12, color: mainheader),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

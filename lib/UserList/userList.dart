@@ -1,13 +1,51 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:online_shopping_admin/main.dart';
 
 class UserList extends StatefulWidget {
-  const UserList({Key? key}) : super(key: key);
-
   @override
   _UserListState createState() => _UserListState();
 }
 
 class _UserListState extends State<UserList> {
+  var userList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchUser();
+  }
+
+  Future<void> fetchUser() async {
+    final response = await http.get(ip + 'easy_shopping/user_list.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var userBody = json.decode(response.body);
+      print(userBody["user_list"]);
+      setState(() {
+        userList = userBody["user_list"];
+      });
+      print(userList.length);
+    } else {
+      throw Exception('Unable to fetch users from the REST API');
+    }
+  }
+
+  Future<void> deleteUser(String id) async {
+    final response =
+        await http.post(ip + 'easy_shopping/user_delete.php', body: {"id": id});
+    print("id - " + id);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      fetchUser();
+    } else {
+      throw Exception('Unable to delete user from the REST API');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +83,7 @@ class _UserListState extends State<UserList> {
           physics: BouncingScrollPhysics(),
           child: Container(
             child: Column(
-              children: List.generate(5, (index) {
+              children: List.generate(userList.length, (index) {
                 return Container(
                   margin: EdgeInsets.only(left: 20, right: 20, top: 0),
                   child: Card(
@@ -59,7 +97,7 @@ class _UserListState extends State<UserList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  "Chitra",
+                                  "${userList[index]["full_name"]}",
                                   style: TextStyle(fontSize: 17),
                                 ),
                                 Container(
@@ -72,7 +110,7 @@ class _UserListState extends State<UserList> {
                                         width: 5,
                                       ),
                                       Text(
-                                        "Sylhet",
+                                        "${userList[index]["address"]}",
                                         style: TextStyle(
                                             fontSize: 15,
                                             color: Colors.black38),
@@ -89,7 +127,7 @@ class _UserListState extends State<UserList> {
                                         width: 5,
                                       ),
                                       Text(
-                                        "demo@mail.com",
+                                        "${userList[index]["email"]}",
                                         style: TextStyle(
                                             fontSize: 15,
                                             color: Colors.black38),
@@ -106,7 +144,7 @@ class _UserListState extends State<UserList> {
                                         width: 5,
                                       ),
                                       Text(
-                                        "+88017XXXXXXXX",
+                                        "${userList[index]["phone_num"]}",
                                         style: TextStyle(
                                             fontSize: 15,
                                             color: Colors.black38),
@@ -144,6 +182,7 @@ class _UserListState extends State<UserList> {
                                           GestureDetector(
                                             onTap: () {
                                               Navigator.pop(context);
+                                              deleteUser(userList[index]["id"]);
                                             },
                                             child: Padding(
                                               padding:

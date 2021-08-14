@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:online_shopping_admin/ProductList/addProduct.dart';
+import 'package:online_shopping_admin/ProductList/productDetails.dart';
 import 'package:online_shopping_admin/main.dart';
 
 class ProductList extends StatefulWidget {
@@ -42,49 +44,9 @@ class _ProductListState extends State<ProductList> {
         actions: [
           GestureDetector(
             onTap: () {
-              showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return Expanded(
-                    child: AlertDialog(
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Add Category'),
-                          Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.only(top: 10),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(width: 0.3, color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: TextField(
-                              decoration: InputDecoration(
-                                  hintText: "Enter category name",
-                                  border: InputBorder.none),
-                            ),
-                          ),
-                          Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.only(bottom: 20, top: 10),
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5.0)),
-                                  color: mainheader,
-                                  border: Border.all(
-                                      width: 0.2, color: Colors.grey)),
-                              child: Text(
-                                "Add",
-                                style: TextStyle(color: Colors.white),
-                                textAlign: TextAlign.center,
-                              )),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddProduct()),
               );
             },
             child: Container(
@@ -107,7 +69,12 @@ class _ProductListState extends State<ProductList> {
           child: Column(
             children: List.generate(10, (index) {
               return GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DetailsPage()),
+                  );
+                },
                 child: Container(
                   margin:
                       EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 0),
@@ -220,66 +187,10 @@ class _ProductListState extends State<ProductList> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: true,
-                                      builder: (BuildContext context) {
-                                        return Expanded(
-                                          child: AlertDialog(
-                                            title: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Edit Category'),
-                                                Container(
-                                                  padding: EdgeInsets.all(5),
-                                                  margin:
-                                                      EdgeInsets.only(top: 10),
-                                                  decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                          width: 0.3,
-                                                          color: Colors.grey),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5)),
-                                                  child: TextField(
-                                                    decoration: InputDecoration(
-                                                        hintText:
-                                                            "Enter category name",
-                                                        border:
-                                                            InputBorder.none),
-                                                  ),
-                                                ),
-                                                Container(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                    margin: EdgeInsets.only(
-                                                        bottom: 20, top: 10),
-                                                    padding: EdgeInsets.all(10),
-                                                    decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    5.0)),
-                                                        color: mainheader,
-                                                        border: Border.all(
-                                                            width: 0.2,
-                                                            color:
-                                                                Colors.grey)),
-                                                    child: Text(
-                                                      "Edit",
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    )),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AddProduct()),
                                     );
                                   },
                                   child: Container(

@@ -9,7 +9,6 @@ import 'package:online_shopping_admin/UserList/userList.dart';
 import 'package:online_shopping_admin/main.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -26,7 +25,7 @@ class _HomePageState extends State<HomePage> {
             width: 30,
             child: Image.asset('assets/logo.jpg')),
         title: Container(
-          child: Text("E-commerce Admin",
+          child: Text("Easy Shopping Admin",
               style: TextStyle(
                   color: subheader, fontSize: 17, fontWeight: FontWeight.bold)),
         ),

@@ -12,13 +12,16 @@ Color white = Color(0xFFFFFFFF);
 Color golden = Color(0xFFCFB53B);
 
 bool isLoggedin = false;
+List orderList = [];
+
+String ip = "http://192.168.100.4/";
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Online Shopping Admin',
+      title: 'Easy Shopping Admin',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
