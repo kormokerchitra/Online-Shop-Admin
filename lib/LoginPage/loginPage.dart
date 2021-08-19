@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/HomePage/homepage.dart';
 import 'package:online_shopping_admin/main.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,7 +15,9 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   TextEditingController _reviewController = TextEditingController();
-  bool _isLoggedIn = false;
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  bool _isLoggedIn = false, isLoading = false;
   String _debugLabelString = "", review = '', runningdate = '';
   bool _requireConsent = false;
   var dd, finalDate;
@@ -21,15 +25,15 @@ class LoginPageState extends State<LoginPage>
 
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
-          color: sub_white,
           //height: MediaQuery.of(context).size.height,
           child: SafeArea(
             child: Container(
@@ -99,7 +103,7 @@ class LoginPageState extends State<LoginPage>
                                           //color: Colors.grey[200],
                                           //padding: EdgeInsets.all(20),
                                           child: Text(
-                                        "Username",
+                                        "Email",
                                         style: TextStyle(
                                             color: Colors.black54,
                                             fontWeight: FontWeight.bold),
@@ -126,13 +130,14 @@ class LoginPageState extends State<LoginPage>
                                         border: Border.all(
                                             width: 0.5, color: Colors.grey)),
                                     child: TextFormField(
+                                      controller: _emailController,
                                       autofocus: false,
                                       decoration: InputDecoration(
                                         icon: const Icon(
-                                          Icons.account_box,
+                                          Icons.email,
                                           color: Colors.black38,
                                         ),
-                                        hintText: 'Type your username...',
+                                        hintText: 'Type your email...',
                                         //labelText: 'Enter E-mail',
                                         contentPadding: EdgeInsets.fromLTRB(
                                             0.0, 10.0, 20.0, 10.0),
@@ -193,6 +198,7 @@ class LoginPageState extends State<LoginPage>
                                         border: Border.all(
                                             width: 0.5, color: Colors.grey)),
                                     child: TextFormField(
+                                      controller: _passwordController,
                                       autofocus: false,
                                       obscureText: true,
                                       decoration: InputDecoration(
@@ -219,30 +225,41 @@ class LoginPageState extends State<LoginPage>
                           ),
                         ],
                       )),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
-                      isLoggedin = true;
-                    },
-                    child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.only(
-                            left: 20, right: 20, bottom: 20, top: 10),
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(5.0)),
-                            color: mainheader,
-                            border: Border.all(width: 0.2, color: Colors.grey)),
-                        child: Text(
-                          "Login",
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        )),
-                  ),
+                  isLoading
+                      ? Container(
+                          margin: EdgeInsets.only(
+                              left: 20, right: 20, bottom: 20, top: 10),
+                          child: CircularProgressIndicator())
+                      : GestureDetector(
+                          onTap: () {
+                            if (_emailController.text == "") {
+                              loginErrMsg("Email fiels is blank");
+                            } else if (_passwordController.text == "") {
+                              loginErrMsg("Password fiels is blank");
+                            } else {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              loginData();
+                            }
+                          },
+                          child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: EdgeInsets.only(
+                                  left: 20, right: 20, bottom: 20, top: 10),
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5.0)),
+                                  color: mainheader,
+                                  border: Border.all(
+                                      width: 0.2, color: Colors.grey)),
+                              child: Text(
+                                "Login",
+                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                              )),
+                        ),
                 ],
               ),
             ),
@@ -250,5 +267,62 @@ class LoginPageState extends State<LoginPage>
         ),
       ),
     );
+  }
+
+  Future<void> loginData() async {
+    final response = await http.post(ip + 'easy_shopping/login.php', body: {
+      "email": _emailController.text,
+      "password": _passwordController.text
+    });
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
+      if (response.body == "success") {
+        storeToLocal(_emailController.text);
+        _emailController.clear();
+        _passwordController.clear();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+        isLoggedin = true;
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        loginErrMsg("Email/Password is incorrect");
+      }
+    } else {
+      throw Exception('Unable to add caegory from the REST API');
+    }
+  }
+
+  loginErrMsg(String msg) {
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return new Container(
+            height: 100.0,
+            color: Colors.transparent, //could change this to Color(0xFF737373),
+            //so you don't have to change MaterialApp canvasColor
+            child: new Container(
+                decoration: new BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: new BorderRadius.only(
+                        topLeft: const Radius.circular(10.0),
+                        topRight: const Radius.circular(10.0))),
+                child: new Center(
+                  child: new Text(msg),
+                )),
+          );
+        });
+  }
+
+  storeToLocal(String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("email", email);
   }
 }

@@ -89,11 +89,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
     });
   }
 
-  Future<void> editOrder(String status, String id) async {
+  Future<void> editOrder(String status, String order_id) async {
     final response =
         await http.post(ip + 'easy_shopping/order_status_edit.php', body: {
       "status": status,
-      "id": id,
+      "order_id": order_id,
     });
     print(response.statusCode);
     if (response.statusCode == 200) {
@@ -171,7 +171,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                           statustxt = statusList[index];
                                         });
                                         editOrder(statusList[index],
-                                            widget.orderDetails["id"]);
+                                            widget.orderDetails["order_id"]);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(10.0),
@@ -279,7 +279,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                         //color: Colors.grey[200],
                                         //padding: EdgeInsets.all(20),
                                         child: Text(
-                                      widget.orderDetails["order_by"],
+                                      widget.orderDetails["full_name"],
                                       style: TextStyle(color: Colors.black54),
                                     )),
                                   ],

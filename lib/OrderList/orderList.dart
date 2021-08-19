@@ -106,7 +106,7 @@ class _OrderListState extends State<OrderList> {
                                     Container(
                                       margin: EdgeInsets.only(top: 5),
                                       child: Text(
-                                        "Order by ${orderList[index]["order_by"]}",
+                                        "Order by ${orderList[index]["full_name"]}",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15,
@@ -144,15 +144,17 @@ class _OrderListState extends State<OrderList> {
                                       margin: EdgeInsets.only(top: 5),
                                       child: Row(
                                         children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Text(
-                                                "Total price: ${orderList[index]["total_price"]}/-",
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: mainheader),
-                                              ),
-                                            ],
+                                          Container(
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                  "Total price: ${orderList[index]["total_price"]}/-",
+                                                  style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: mainheader),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),

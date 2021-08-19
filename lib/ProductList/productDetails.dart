@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/LoginPage/loginPage.dart';
-
+import 'package:http/http.dart' as http;
 import '../../main.dart';
 
 class DetailsPage extends StatefulWidget {
+  final product_info;
+  DetailsPage(this.product_info);
+
   @override
   State<StatefulWidget> createState() {
     return DetailsPageState();
@@ -14,6 +17,8 @@ class DetailsPage extends StatefulWidget {
 class DetailsPageState extends State<DetailsPage>
     with SingleTickerProviderStateMixin {
   TextEditingController _reviewController = TextEditingController();
+  TextEditingController discPercentController = new TextEditingController();
+  TextEditingController discDateController = new TextEditingController();
   Animation<double> animation;
   AnimationController controller;
   bool _isLoggedIn = false;
@@ -61,6 +66,23 @@ class DetailsPageState extends State<DetailsPage>
     }
   }
 
+  Future<void> editProductDisc(String prod_id) async {
+    final response =
+        await http.post(ip + 'easy_shopping/product_status_edit.php', body: {
+      "prod_discount": discPercentController.text,
+      "prod_disc_date": discDateController.text,
+      "prod_id": prod_id,
+    });
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      discPercentController.clear();
+      discDateController.clear();
+    } else {
+      throw Exception('Unable to edit caegory from the REST API');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,6 +115,88 @@ class DetailsPageState extends State<DetailsPage>
             ),
           ),
         ),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              discPercentController.text = widget.product_info["prod_discount"];
+              discDateController.text = widget.product_info["prod_disc_date"];
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext context) {
+                  return Expanded(
+                    child: AlertDialog(
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Edit discount'),
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            margin: EdgeInsets.only(top: 10),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 0.3, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5)),
+                            child: TextField(
+                              controller: discPercentController,
+                              decoration: InputDecoration(
+                                  hintText: "Enter discount percentage (%)",
+                                  border: InputBorder.none),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            margin: EdgeInsets.only(top: 10),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 0.3, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(5)),
+                            child: TextField(
+                              controller: discDateController,
+                              decoration: InputDecoration(
+                                  hintText: "Enter date (yyyy-MM-dd)",
+                                  border: InputBorder.none),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              editProductDisc(widget.product_info["prod_id"]);
+                            },
+                            child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.only(bottom: 20, top: 10),
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5.0)),
+                                    color: mainheader,
+                                    border: Border.all(
+                                        width: 0.2, color: Colors.grey)),
+                                child: Text(
+                                  "Edit",
+                                  style: TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text("Discount",
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: subheader)),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
@@ -116,9 +220,13 @@ class DetailsPageState extends State<DetailsPage>
                               color: Colors.white,
                               border:
                                   Border.all(width: 0.2, color: Colors.grey)),
-                          child: Image.asset(
-                            'assets/tshirt.png',
-                          ),
+                          child: widget.product_info["product_img"] == ""
+                              ? Image.asset(
+                                  'assets/product_back.jpg',
+                                )
+                              : Image.asset(
+                                  'assets/product_back.jpg',
+                                ),
                           // child: CarouselSlider(
                           //   //height: 400.0,
                           //   // carouselController: buttonCarouselController,
@@ -190,7 +298,7 @@ class DetailsPageState extends State<DetailsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "Product Name",
+                        widget.product_info["product_name"],
                         style: TextStyle(fontSize: 17, color: Colors.black),
                         textAlign: TextAlign.center,
                       ),
@@ -204,7 +312,7 @@ class DetailsPageState extends State<DetailsPage>
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
-                          Text("AZ-0Bsd-723",
+                          Text(widget.product_info["product_code"],
                               style: TextStyle(
                                 fontSize: 14,
                                 color: mainheader,
@@ -221,7 +329,7 @@ class DetailsPageState extends State<DetailsPage>
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
-                          Text("9",
+                          Text(widget.product_info["product_size"],
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black54))
                         ],
@@ -251,7 +359,7 @@ class DetailsPageState extends State<DetailsPage>
                             width: 0,
                           ),
                           Text(
-                            "20.25",
+                            widget.product_info["product_price"],
                             style: TextStyle(color: Colors.black, fontSize: 17),
                           )
                         ],
@@ -267,26 +375,13 @@ class DetailsPageState extends State<DetailsPage>
                                   color: golden,
                                   size: 20,
                                 ),
-                                Icon(
-                                  Icons.star,
-                                  color: golden,
-                                  size: 20,
-                                ),
-                                Icon(
-                                  Icons.star,
-                                  color: golden,
-                                  size: 20,
-                                ),
-                                Icon(
-                                  Icons.star,
-                                  color: golden,
-                                  size: 20,
-                                ),
-                                Icon(
-                                  Icons.star_half,
-                                  color: golden,
-                                  size: 20,
-                                ),
+                                Container(
+                                  margin: EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    widget.product_info["prod_rating"],
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                )
                               ],
                             ),
                           ],
@@ -317,7 +412,7 @@ class DetailsPageState extends State<DetailsPage>
                         height: 10,
                       ),
                       Text(
-                        "Terms and Conditions agreements act as a legal contract between you (the company) who has the website or mobile app and the user who access your website and mobile app.",
+                        widget.product_info["prod_description"],
                         textAlign: TextAlign.justify,
                         style: TextStyle(fontSize: 15, color: Colors.black45),
                       ),
@@ -365,32 +460,7 @@ class DetailsPageState extends State<DetailsPage>
                                   )),
                                   Container(
                                       child: Text(
-                                    "9 inches",
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Product weight",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Text(
-                                    "1 kg",
+                                    widget.product_info["prod_dimension"],
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: Colors.black54),
                                   ))
@@ -415,7 +485,7 @@ class DetailsPageState extends State<DetailsPage>
                                   )),
                                   Container(
                                       child: Text(
-                                    "1 kg",
+                                    widget.product_info["shipping_weight"],
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: Colors.black54),
                                   ))
@@ -440,7 +510,7 @@ class DetailsPageState extends State<DetailsPage>
                                   )),
                                   Container(
                                       child: Text(
-                                    "Appify Lab",
+                                    widget.product_info["manuf_name"],
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: Colors.black54),
                                   ))
@@ -465,107 +535,7 @@ class DetailsPageState extends State<DetailsPage>
                                   )),
                                   Container(
                                       child: Text(
-                                    "AZ-0sdf-kdfjg-345",
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Reference ID",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Text(
-                                    "kfull-0906-ks-2",
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Reviews",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Text(
-                                    "4.5 (200+ users)",
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Best Seller Rank",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Text(
-                                    "165",
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(top: 5, bottom: 5),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Container(
-                                      //color: Colors.grey[200],
-                                      //padding: EdgeInsets.all(20),
-                                      child: Text(
-                                    "Release date",
-                                    style: TextStyle(color: Colors.grey),
-                                  )),
-                                  Container(
-                                      child: Text(
-                                    "10/7/2019",
+                                    widget.product_info["prod_serial_num"],
                                     textAlign: TextAlign.start,
                                     style: TextStyle(color: Colors.black54),
                                   ))
@@ -574,221 +544,6 @@ class DetailsPageState extends State<DetailsPage>
                             ),
                           ],
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin:
-                      EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 5),
-                  padding:
-                      EdgeInsets.only(left: 0, top: 15, bottom: 15, right: 1),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: Colors.white,
-                      border: Border.all(width: 0.2, color: Colors.grey)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.only(left: 15),
-                        child: Text(
-                          "Product Reviews",
-                          style: TextStyle(fontSize: 17, color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          // Container(
-                          //   width: MediaQuery.of(context).size.width / 6,
-                          //   child: Container(
-                          //     //padding: EdgeInsets.only(left: 20),
-                          //     width: 100,
-                          //     child: Column(
-                          //       children: <Widget>[
-                          //         Container(
-                          //           height: 55,
-                          //         ),
-                          //         Text(
-                          //           "Name",
-                          //           style: TextStyle(
-                          //               fontSize: 13, color: Colors.black38),
-                          //           textAlign: TextAlign.center,
-                          //         ),
-                          //         Container(
-                          //           margin: EdgeInsets.only(top: 10),
-                          //           child: Text(
-                          //             "Rating",
-                          //             style: TextStyle(
-                          //                 fontSize: 13, color: Colors.black38),
-                          //             textAlign: TextAlign.center,
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
-                          Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(left: 0, right: 0),
-                              //color: sub_white,
-                              width: MediaQuery.of(context).size.width / 1,
-                              padding: EdgeInsets.only(left: 2),
-                              height: 250,
-                              child: new ListView.builder(
-                                //scrollDirection: Axis.horizontal,
-                                itemBuilder:
-                                    (BuildContext context, int index) =>
-                                        new Container(
-                                  //color: Colors.white,
-                                  margin: EdgeInsets.all(5),
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(1.0)),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                          width: 0.2, color: Colors.grey)),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                DetailsPage()),
-                                      );
-                                    },
-                                    child: Container(
-                                      //padding: EdgeInsets.only(left: 20),
-                                      width: 100,
-                                      child: Center(
-                                        child: Row(
-                                          children: <Widget>[
-                                            Container(
-                                              //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
-                                              padding: EdgeInsets.all(1.0),
-                                              child: CircleAvatar(
-                                                radius: 25.0,
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                backgroundImage: AssetImage(
-                                                    'assets/logo.png'),
-                                              ),
-                                              decoration: new BoxDecoration(
-                                                color:
-                                                    Colors.grey, // border color
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 10,
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: <Widget>[
-                                                      Expanded(
-                                                        child: Text(
-                                                          "John Smith",
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: TextStyle(
-                                                              fontSize: 13,
-                                                              color: Colors
-                                                                  .black38,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "July 14, 2019",
-                                                        style: TextStyle(
-                                                          fontSize: 11,
-                                                          color: Colors.grey,
-                                                        ),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Container(
-                                                    margin:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      children: <Widget>[
-                                                        Icon(
-                                                          Icons.star,
-                                                          color: golden,
-                                                          size: 14,
-                                                        ),
-                                                        Icon(
-                                                          Icons.star,
-                                                          color: golden,
-                                                          size: 14,
-                                                        ),
-                                                        Icon(
-                                                          Icons.star,
-                                                          color: golden,
-                                                          size: 14,
-                                                        ),
-                                                        Icon(
-                                                          Icons.star_half,
-                                                          color: golden,
-                                                          size: 14,
-                                                        ),
-                                                        Icon(
-                                                          Icons.star_border,
-                                                          color: golden,
-                                                          size: 14,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    margin:
-                                                        EdgeInsets.only(top: 5),
-                                                    child: Text(
-                                                      "this is a very good product. very useful in reasonable price.",
-                                                      style: TextStyle(
-                                                          fontSize: 13,
-                                                          color:
-                                                              Colors.black38),
-                                                      textAlign:
-                                                          TextAlign.justify,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                itemCount: 20,
-                              ),
-                            ),
-                          ),
-                        ],
                       )
                     ],
                   ),

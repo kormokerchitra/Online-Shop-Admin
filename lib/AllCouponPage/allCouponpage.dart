@@ -73,13 +73,13 @@ class _AllCouponPageState extends State<AllCouponPage> {
     }
   }
 
-  Future<void> editCoupon(String id) async {
+  Future<void> editCoupon(String vou_id) async {
     print(json.encode({
       "vou_name": vNameController1.text,
       "vou_amount": vAmtController1.text,
       "vou_exp_date": vDateController1.text,
       "vou_status": vStatusController1.text,
-      "id": id,
+      "vou_id": vou_id,
     }));
     final response =
         await http.post(ip + 'easy_shopping/voucher_edit.php', body: {
@@ -87,7 +87,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
       "vou_amount": vAmtController1.text,
       "vou_exp_date": vDateController1.text,
       "vou_status": vStatusController1.text,
-      "id": id,
+      "vou_id": vou_id,
     });
     print(response.statusCode);
     if (response.statusCode == 200) {
@@ -102,10 +102,10 @@ class _AllCouponPageState extends State<AllCouponPage> {
     }
   }
 
-  Future<void> deleteCoupon(String id) async {
+  Future<void> deleteCoupon(String vou_id) async {
     final response = await http
-        .post(ip + 'easy_shopping/voucher_delete.php', body: {"id": id});
-    print("id - " + id);
+        .post(ip + 'easy_shopping/voucher_delete.php', body: {"vou_id": vou_id});
+    print("vou_id - " + vou_id);
     print(response.statusCode);
     if (response.statusCode == 200) {
       fetchCoupon();
@@ -517,7 +517,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                           GestureDetector(
                                                                             onTap:
                                                                                 () {
-                                                                              editCoupon(couponListActive[index]["id"]);
+                                                                              editCoupon(couponListActive[index]["vou_id"]);
                                                                             },
                                                                             child: Container(
                                                                                 width: MediaQuery.of(context).size.width,
@@ -593,7 +593,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                             context);
                                                                         deleteCoupon(couponListActive[index]
                                                                             [
-                                                                            "id"]);
+                                                                            "vou_id"]);
                                                                       },
                                                                       child:
                                                                           Padding(
@@ -757,7 +757,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                     deleteCoupon(
                                                                         couponListUsed[index]
                                                                             [
-                                                                            "id"]);
+                                                                            "vou_id"]);
                                                                   },
                                                                   child:
                                                                       Padding(

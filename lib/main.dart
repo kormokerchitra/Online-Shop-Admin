@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:online_shopping_admin/HomePage/homepage.dart';
 import 'package:online_shopping_admin/LoginPage/loginPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,10 +16,32 @@ Color golden = Color(0xFFCFB53B);
 bool isLoggedin = false;
 List orderList = [];
 
-String ip = "http://192.168.100.4/";
+String ip = "http://192.168.100.5/";
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   // This widget is the root of your application.
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  String userEmail = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getuserEmail();
+  }
+
+  getuserEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userEmail = prefs.getString("email");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,7 +50,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      home: userEmail == null || userEmail == "" ? LoginPage() : HomePage(),
     );
   }
 }

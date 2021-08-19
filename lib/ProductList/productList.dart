@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/ProductList/addProduct.dart';
 import 'package:online_shopping_admin/ProductList/productDetails.dart';
 import 'package:online_shopping_admin/main.dart';
+import 'package:http/http.dart' as http;
 
 class ProductList extends StatefulWidget {
   @override
@@ -9,6 +12,30 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
+  var prodList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchProduct();
+  }
+
+  Future<void> fetchProduct() async {
+    final response = await http.get(ip + 'easy_shopping/product_list.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var prodBody = json.decode(response.body);
+      print(prodBody["product_list"]);
+      setState(() {
+        prodList = prodBody["product_list"];
+      });
+      print(prodList.length);
+    } else {
+      throw Exception('Unable to fetch products from the REST API');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,12 +94,12 @@ class _ProductListState extends State<ProductList> {
         physics: BouncingScrollPhysics(),
         child: Container(
           child: Column(
-            children: List.generate(10, (index) {
+            children: List.generate(prodList.length, (index) {
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DetailsPage()),
+                    MaterialPageRoute(builder: (context) => DetailsPage(prodList[index])),
                   );
                 },
                 child: Container(
@@ -91,14 +118,17 @@ class _ProductListState extends State<ProductList> {
                                 Container(
                                     margin: EdgeInsets.only(right: 10, left: 0),
                                     height: 90,
-                                    child: Image.asset('assets/shoe.png')),
+                                    width: 80,
+                                    child: prodList[index]["product_img"] == ""
+                                        ? Image.asset('assets/product_back.jpg')
+                                        : Image.asset('assets/product_back.jpg')),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        "Product Name hghgjhgjgjh",
+                                        "${prodList[index]["product_name"]}",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                             fontSize: 17,
@@ -114,34 +144,14 @@ class _ProductListState extends State<ProductList> {
                                               color: golden,
                                               size: 17,
                                             ),
-                                            Icon(
-                                              Icons.star,
-                                              color: golden,
-                                              size: 17,
-                                            ),
-                                            Icon(
-                                              Icons.star,
-                                              color: golden,
-                                              size: 17,
-                                            ),
-                                            Icon(
-                                              Icons.star_half,
-                                              color: golden,
-                                              size: 17,
-                                            ),
-                                            Icon(
-                                              Icons.star_border,
-                                              color: golden,
-                                              size: 17,
-                                            ),
-                                            // Container(
-                                            //   margin: EdgeInsets.only(left: 3),
-                                            //   child: Text(
-                                            //     "4.5",
-                                            //     style: TextStyle(
-                                            //         color: Colors.grey),
-                                            //   ),
-                                            // )
+                                            Container(
+                                              margin: EdgeInsets.only(left: 3),
+                                              child: Text(
+                                                "${prodList[index]["prod_rating"]}",
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                            )
                                           ],
                                         ),
                                       ),
@@ -159,7 +169,7 @@ class _ProductListState extends State<ProductList> {
                                                   size: 18,
                                                 ),
                                                 Text(
-                                                  "20.25",
+                                                  "${prodList[index]["product_price"]}",
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     color: Colors.black87,

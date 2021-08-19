@@ -36,10 +36,10 @@ class _CategoryListState extends State<CategoryList> {
     }
   }
 
-  Future<void> deleteCategory(String id) async {
+  Future<void> deleteCategory(String cat_id) async {
     final response = await http
-        .post(ip + 'easy_shopping/category_delete.php', body: {"id": id});
-    print("id - " + id);
+        .post(ip + 'easy_shopping/category_delete.php', body: {"cat_id": cat_id});
+    print("cat_id - " + cat_id);
     print(response.statusCode);
     if (response.statusCode == 200) {
       fetchCategory();
@@ -62,11 +62,11 @@ class _CategoryListState extends State<CategoryList> {
     }
   }
 
-  Future<void> editCategory(String name, String id) async {
+  Future<void> editCategory(String name, String cat_id) async {
     final response =
         await http.post(ip + 'easy_shopping/category_edit.php', body: {
       "cat_name": name,
-      "id": id,
+      "cat_id": cat_id,
     });
     print("name - " + name);
     print(response.statusCode);
@@ -294,7 +294,7 @@ class _CategoryListState extends State<CategoryList> {
                                                           categoryEditController
                                                               .text,
                                                           categoryList[index]
-                                                              ["id"]);
+                                                              ["cat_id"]);
                                                     }
                                                   },
                                                   child: Container(
@@ -373,7 +373,7 @@ class _CategoryListState extends State<CategoryList> {
                                                   Navigator.pop(context);
                                                   deleteCategory(
                                                       categoryList[index]
-                                                          ["id"]);
+                                                          ["cat_id"]);
                                                 },
                                                 child: Padding(
                                                   padding:

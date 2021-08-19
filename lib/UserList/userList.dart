@@ -34,10 +34,10 @@ class _UserListState extends State<UserList> {
     }
   }
 
-  Future<void> deleteUser(String id) async {
-    final response =
-        await http.post(ip + 'easy_shopping/user_delete.php', body: {"id": id});
-    print("id - " + id);
+  Future<void> deleteUser(String user_id) async {
+    final response = await http
+        .post(ip + 'easy_shopping/user_delete.php', body: {"user_id": user_id});
+    print("user_id - " + user_id);
     print(response.statusCode);
     if (response.statusCode == 200) {
       fetchUser();
@@ -84,131 +84,141 @@ class _UserListState extends State<UserList> {
           child: Container(
             child: Column(
               children: List.generate(userList.length, (index) {
-                return Container(
-                  margin: EdgeInsets.only(left: 20, right: 20, top: 0),
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "${userList[index]["full_name"]}",
-                                  style: TextStyle(fontSize: 17),
-                                ),
+                return userList[index]["full_name"] == "Admin"
+                    ? Container()
+                    : Container(
+                        margin: EdgeInsets.only(left: 20, right: 20, top: 0),
+                        child: Card(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
                                 Container(
-                                  margin: EdgeInsets.only(top: 5),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.location_on,
-                                          color: Colors.black38),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
                                       Text(
-                                        "${userList[index]["address"]}",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.black38),
+                                        "${userList[index]["full_name"]}",
+                                        style: TextStyle(fontSize: 17),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 5),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.location_on,
+                                                color: Colors.black38),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              "${userList[index]["address"]}",
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.black38),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 5),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.email,
+                                                color: Colors.black38),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              "${userList[index]["email"]}",
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.black38),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(top: 5),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.phone,
+                                                color: Colors.black38),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                              "${userList[index]["phone_num"]}",
+                                              style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.black38),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                Container(
-                                  margin: EdgeInsets.only(top: 5),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.email, color: Colors.black38),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Text(
-                                        "${userList[index]["email"]}",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.black38),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(top: 5),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.phone, color: Colors.black38),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Text(
-                                        "${userList[index]["phone_num"]}",
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.black38),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Expanded(
+                                            child: AlertDialog(
+                                              title: Text('Delete User'),
+                                              content: Text(
+                                                  'Do you want to delete the user?'),
+                                              actions: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Container(
+                                                        margin: EdgeInsets.only(
+                                                            right: 10,
+                                                            bottom: 10),
+                                                        child: Text('No')),
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                    deleteUser(userList[index]
+                                                        ["user_id"]);
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Container(
+                                                        margin: EdgeInsets.only(
+                                                            right: 10,
+                                                            bottom: 10),
+                                                        child: Text('Yes')),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(Icons.delete,
+                                          color: Colors.redAccent),
+                                    )),
                               ],
                             ),
                           ),
-                          GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Expanded(
-                                      child: AlertDialog(
-                                        title: Text('Delete User'),
-                                        content: Text(
-                                            'Do you want to delete the user?'),
-                                        actions: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      right: 10, bottom: 10),
-                                                  child: Text('No')),
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                              deleteUser(userList[index]["id"]);
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                  margin: EdgeInsets.only(
-                                                      right: 10, bottom: 10),
-                                                  child: Text('Yes')),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child:
-                                    Icon(Icons.delete, color: Colors.redAccent),
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
+                        ),
+                      );
               }),
             ),
           ),
