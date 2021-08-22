@@ -127,16 +127,16 @@ class _DiscountListState extends State<DiscountList> {
                                               margin: EdgeInsets.only(top: 5),
                                               child: Row(
                                                 children: <Widget>[
-                                                  Icon(
-                                                    Icons.star,
-                                                    color: golden,
-                                                    size: 17,
-                                                  ),
+                                                  //Icon(
+                                                    //Icons.star,
+                                                    //color: golden,
+                                                    //size: 17,
+                                                  //),
                                                   Container(
                                                     margin: EdgeInsets.only(
                                                         left: 3),
                                                     child: Text(
-                                                      "${prodList[index]["prod_rating"]}",
+                                                      "Discount: ${prodList[index]["prod_discount"]}%",
                                                       style: TextStyle(
                                                           color: Colors.grey),
                                                     ),
@@ -153,13 +153,13 @@ class _DiscountListState extends State<DiscountList> {
                                                 children: <Widget>[
                                                   Row(
                                                     children: <Widget>[
-                                                      Icon(
-                                                        Icons.attach_money,
-                                                        color: Colors.black87,
-                                                        size: 18,
-                                                      ),
+                                                      //Icon(
+                                                        //Icons.attach_money,
+                                                        //color: Colors.black87,
+                                                        //size: 18,
+                                                      //),
                                                       Text(
-                                                        "${prodList[index]["product_price"]}",
+                                                        "Date: ${prodList[index]["prod_disc_date"]}",
                                                         style: TextStyle(
                                                           fontSize: 16,
                                                           color: Colors.black87,
@@ -237,7 +237,7 @@ class _DiscountListState extends State<DiscountList> {
                                                           discDateController,
                                                       decoration: InputDecoration(
                                                           hintText:
-                                                              "Enter date (yyyy-MM-dd)",
+                                                              "Enter date (YYYY-MM-DD)",
                                                           border:
                                                               InputBorder.none),
                                                     ),

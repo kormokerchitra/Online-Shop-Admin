@@ -754,7 +754,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                       Icon(Icons.attach_money,
                                           size: 15, color: mainheader),
                                       Text(
-                                        widget.orderDetails["discount"],
+                                        widget.orderDetails["prod_discount"],
+                                        //"${prodList[index]["prod_discount"]}",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),

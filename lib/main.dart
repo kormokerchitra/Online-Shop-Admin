@@ -32,13 +32,13 @@ class _MyAppState extends State<MyApp> {
     // TODO: implement initState
     super.initState();
 
-    getuserEmail();
+    getuserID();
   }
 
-  getuserEmail() async {
+  getuserID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userEmail = prefs.getString("email");
+      userEmail = prefs.getString("userId");
     });
   }
 

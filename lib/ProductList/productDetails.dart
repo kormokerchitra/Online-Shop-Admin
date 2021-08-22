@@ -158,6 +158,12 @@ class DetailsPageState extends State<DetailsPage>
                                   border: InputBorder.none),
                             ),
                           ),
+                           //GestureDetector(
+                            //onTap: () {
+                              //if (categoryController.text != "") {
+                                //addProductDisc(categoryController.text);
+                              //}
+                            //},
                           GestureDetector(
                             onTap: () {
                               editProductDisc(widget.product_info["prod_id"]);
@@ -188,7 +194,7 @@ class DetailsPageState extends State<DetailsPage>
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Text("Discount",
+                child: Text("Add Discount",
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -308,7 +314,7 @@ class DetailsPageState extends State<DetailsPage>
                       Row(
                         children: <Widget>[
                           Text(
-                            "Product Code : ",
+                            "Product Code: ",
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
@@ -325,7 +331,7 @@ class DetailsPageState extends State<DetailsPage>
                       Row(
                         children: <Widget>[
                           Text(
-                            "Size : ",
+                            "Size: ",
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),

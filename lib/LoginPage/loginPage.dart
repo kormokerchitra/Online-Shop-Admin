@@ -277,8 +277,8 @@ class LoginPageState extends State<LoginPage>
     print(response.statusCode);
     print(response.body);
     if (response.statusCode == 200) {
-      if (response.body == "success") {
-        storeToLocal(_emailController.text);
+      if (response.body != "failure") {
+        storeToLocal(response.body);
         _emailController.clear();
         _passwordController.clear();
         Navigator.pushReplacement(
@@ -321,8 +321,8 @@ class LoginPageState extends State<LoginPage>
         });
   }
 
-  storeToLocal(String email) async {
+  storeToLocal(String user_id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("email", email);
+    prefs.setString("userId", user_id);
   }
 }

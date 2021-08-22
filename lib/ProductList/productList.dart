@@ -13,6 +13,8 @@ class ProductList extends StatefulWidget {
 
 class _ProductListState extends State<ProductList> {
   var prodList = [];
+    //TextEditingController productController = new TextEditingController();
+    //TextEditingController productEditController = new TextEditingController();
 
   @override
   void initState() {
@@ -35,6 +37,35 @@ class _ProductListState extends State<ProductList> {
       throw Exception('Unable to fetch products from the REST API');
     }
   }
+
+  Future<void> deleteProduct(String prod_id) async {
+    final response = await http
+        .post(ip + 'easy_shopping/product_delete.php', body: {"prod_id": prod_id});
+    print("prod_id - " + prod_id);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      fetchProduct();
+    } else {
+      throw Exception('Unable to delete product from the REST API');
+    }
+  }
+
+  //Future<void> editProduct(String name, String prod_id) async {
+    //final response =
+        //await http.post(ip + 'easy_shopping/product_edit.php', body: {
+      //"product_name": name,
+      //"prod_id": prod_id,
+    //});
+    //print("name - " + name);
+    //print(response.statusCode);
+    //if (response.statusCode == 200) {
+      //Navigator.pop(context);
+      //productEditController.clear();
+      //fetchProduct();
+    //} else {
+      //throw Exception('Unable to edit product from the REST API');
+    //}
+  //}
 
   @override
   Widget build(BuildContext context) {
@@ -201,8 +232,92 @@ class _ProductListState extends State<ProductList> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => AddProduct()),
+                                          //builder: (context) => EditProduct()),
                                     );
                                   },
+                                  //onTap: () {
+                                    //productEditController.text =
+                                        //productList[index]["product_name"];
+                                    //showDialog(
+                                      //context: context,
+                                      //barrierDismissible: true,
+                                      //builder: (BuildContext context) {
+                                        //return Expanded(
+                                          //child: AlertDialog(
+                                            //title: Column(
+                                              //crossAxisAlignment:
+                                                  //CrossAxisAlignment.start,
+                                              //children: [
+                                                //Text('Edit Product Details'),
+                                                //Container(
+                                                  //padding: EdgeInsets.all(5),
+                                                  //margin:
+                                                      //EdgeInsets.only(top: 10),
+                                                  //decoration: BoxDecoration(
+                                                      //border: Border.all(
+                                                          //width: 0.3,
+                                                          //color: Colors.grey),
+                                                      //borderRadius:
+                                                          //BorderRadius.circular(
+                                                             //5)),
+                                                  //child: TextField(
+                                                    //controller:
+                                                        //productEditController,
+                                                    //decoration: InputDecoration(
+                                                        //hintText:
+                                                            //"Enter product name",
+                                                        //border:
+                                                            //InputBorder.none),
+                                                  //),
+                                                //),
+                                                //GestureDetector(
+                                                  //onTap: () {
+                                                    //if (productEditController
+                                                            //.text !=
+                                                        //"") {
+                                                      //editProduct(
+                                                          //productEditController
+                                                              //.text,
+                                                          //productList[index]
+                                                              //["prod_id"]);
+                                                    //}
+                                                  //},
+                                                  //child: Container(
+                                                      //width:
+                                                          //MediaQuery.of(context)
+                                                              //.size
+                                                              //.width,
+                                                      //margin: EdgeInsets.only(
+                                                          //bottom: 20, top: 10),
+                                                      //padding:
+                                                          //EdgeInsets.all(10),
+                                                      //decoration: BoxDecoration(
+                                                          //borderRadius:
+                                                              //BorderRadius.all(
+                                                                  //Radius
+                                                                      //.circular(
+                                                                          //5.0)),
+                                                          //color: mainheader,
+                                                          //border: Border.all(
+                                                              //width: 0.2,
+                                                              //color:
+                                                                  //Colors.grey)),
+                                                      //child: Text(
+                                                        //"Edit",
+                                                        //style: TextStyle(
+                                                            //color:
+                                                                //Colors.white),
+                                                        //textAlign:
+                                                            //TextAlign.center,
+                                                      //)),
+                                               // ),
+                                              //],
+                                            //),
+                                          //),
+                                       // );
+                                      //},
+                                    //);
+                                  //},
                                   child: Container(
                                       padding: EdgeInsets.all(10),
                                       child: Container(
