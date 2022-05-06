@@ -32,6 +32,12 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
     "Delivered",
     "Cancelled"
   ];
+  double totalPrice = 0.0,
+      discTotal = 0.0, 
+      subTotal = 0.0, 
+      couponPrice = 0.0, 
+      shippingCost = 0.0,
+      amt = 0.0;
 
   @override
   void initState() {
@@ -41,6 +47,13 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
     runningdate = new DateFormat("dd-MM-yyyy").format(now);
     statustxt = widget.orderDetails["status"];
     super.initState();
+
+    totalPrice = double.parse(widget.orderDetails["total_price"]);
+    discTotal = double.parse(widget.orderDetails["prod_discount"]);
+    subTotal = double.parse(widget.orderDetails["sub_total"]);
+    couponPrice = double.parse(widget.orderDetails["coupon_discount"]);
+    shippingCost = double.parse(widget.orderDetails["shipping_cost"]);
+    amt = double.parse(widget.orderDetails["total_payable"]);
   }
 
   void _getDate() {
@@ -721,10 +734,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        widget.orderDetails["total_price"],
+                                        "Tk. ${totalPrice.toStringAsFixed(2)}",
+                                        //"Tk. " + widget.orderDetails["total_price"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -751,10 +765,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                     children: <Widget>[
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: mainheader),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: mainheader),
                                       Text(
-                                        widget.orderDetails["prod_discount"],
+                                        "Tk. ${discTotal.toStringAsFixed(2)}",
+                                        //"Tk. " + widget.orderDetails["prod_discount"],
                                         //"${prodList[index]["prod_discount"]}",
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
@@ -780,10 +795,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        widget.orderDetails["sub_total"],
+                                        "Tk. ${subTotal.toStringAsFixed(2)}",
+                                        //"Tk. " + widget.orderDetails["sub_total"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -810,10 +826,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                     children: <Widget>[
                                       Icon(Icons.remove,
                                           size: 15, color: mainheader),
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: mainheader),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: mainheader),
                                       Text(
-                                        widget.orderDetails["coupon_discount"],
+                                        "Tk. ${couponPrice.toStringAsFixed(2)}",
+                                        //"Tk. " + widget.orderDetails["coupon_discount"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: mainheader),
                                       ),
@@ -838,10 +855,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black54),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black54),
                                       Text(
-                                        widget.orderDetails["shipping_cost"],
+                                        "Tk. ${shippingCost.toStringAsFixed(2)}",
+                                        //"Tk. " + widget.orderDetails["shipping_cost"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(color: Colors.black54),
                                       ),
@@ -869,10 +887,11 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                   Container(
                                       child: Row(
                                     children: <Widget>[
-                                      Icon(Icons.attach_money,
-                                          size: 15, color: Colors.black),
+                                      //Icon(Icons.attach_money,
+                                          //size: 15, color: Colors.black),
                                       Text(
-                                        widget.orderDetails["total_payable"],
+                                        "Tk. ${amt.toStringAsFixed(2)}",
+                                        //"Tk. " + widget.orderDetails["total_payable"],
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                             color: Colors.black,
@@ -902,7 +921,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "Payment Details",
+                        "Payment Method",
                         style: TextStyle(fontSize: 17, color: Colors.black),
                         textAlign: TextAlign.center,
                       ),

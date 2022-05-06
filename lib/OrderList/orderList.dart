@@ -11,7 +11,7 @@ class OrderList extends StatefulWidget {
 }
 
 class _OrderListState extends State<OrderList> {
-  
+  double totalPrice = 0.0;
   @override
   void initState() {
     // TODO: implement initState
@@ -20,7 +20,7 @@ class _OrderListState extends State<OrderList> {
   }
 
   Future<void> fetchOrder() async {
-    final response = await http.get(ip + 'easy_shopping/order_details.php');
+    final response = await http.get(ip + 'easy_shopping/order_list_all.php');
     if (response.statusCode == 200) {
       print(response.body);
       var corderBody = json.decode(response.body);
@@ -71,6 +71,7 @@ class _OrderListState extends State<OrderList> {
         physics: BouncingScrollPhysics(),
         child: Column(
           children: List.generate(orderList.length, (index) {
+            totalPrice = double.parse(orderList[index]["total_payable"]);
             return GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -96,6 +97,7 @@ class _OrderListState extends State<OrderList> {
                                   children: <Widget>[
                                     Text(
                                       "#${orderList[index]["inv_id"]}",
+                                      //"#${orderList[index]["inv_id"]}",
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 17,
@@ -148,7 +150,7 @@ class _OrderListState extends State<OrderList> {
                                             child: Row(
                                               children: <Widget>[
                                                 Text(
-                                                  "Total price: ${orderList[index]["total_price"]}/-",
+                                                  "Total price: Tk. ${totalPrice.toStringAsFixed(2)}",
                                                   style: TextStyle(
                                                       fontSize: 15,
                                                       color: mainheader),
@@ -162,7 +164,7 @@ class _OrderListState extends State<OrderList> {
                                     Container(
                                       margin: EdgeInsets.only(top: 5),
                                       child: Text(
-                                        "Date : ${orderList[index]["delivery_date"]}",
+                                        "Date: ${orderList[index]["delivery_date"]}",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,12 +21,15 @@ class _AllCouponPageState extends State<AllCouponPage> {
   TextEditingController vAmtController1 = new TextEditingController();
   TextEditingController vStatusController1 = new TextEditingController();
   List couponListActive = [], couponListUsed = [];
-  bool isLoading = true;
+  bool isLoading = true, isEditLoading = false;
+  String runningdate = "";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    var now = new DateTime.now();
+    runningdate = new DateFormat("yyyy-MM-dd").format(now);
     fetchCoupon();
   }
 
@@ -40,7 +44,19 @@ class _AllCouponPageState extends State<AllCouponPage> {
       setState(() {
         var couponList = couponBody["voucher_list"];
         for (int i = 0; i < couponList.length; i++) {
-          if (couponList[i]["voucher_status"] == "Available") {
+          String voucherExpDate = couponList[i]["vou_exp_date"];
+          List expArr = voucherExpDate.split("-");
+          String day = expArr[0];
+          int dayInt = int.parse(day);
+          String month = expArr[1];
+          int monthInt = int.parse(month);
+          String year = expArr[2];
+          int yearInt = int.parse(year);
+
+          final now = DateTime.now();
+          final expirationDate = DateTime(yearInt, monthInt, dayInt);
+          final bool isExpired = expirationDate.isBefore(now);
+          if (couponList[i]["voucher_status"] == "1" && !isExpired) {
             couponListActive.add(couponList[i]);
           } else {
             couponListUsed.add(couponList[i]);
@@ -74,6 +90,9 @@ class _AllCouponPageState extends State<AllCouponPage> {
   }
 
   Future<void> editCoupon(String vou_id) async {
+    setState(() {
+      isEditLoading = true;
+    });
     print(json.encode({
       "vou_name": vNameController1.text,
       "vou_amount": vAmtController1.text,
@@ -91,20 +110,22 @@ class _AllCouponPageState extends State<AllCouponPage> {
     });
     print(response.statusCode);
     if (response.statusCode == 200) {
-      Navigator.pop(context);
-      vNameController1.clear();
-      vAmtController1.clear();
-      vDateController1.clear();
-      vStatusController1.clear();
+      setState(() {
+        vNameController1.clear();
+        vAmtController1.clear();
+        vDateController1.clear();
+        vStatusController1.clear();
+        isEditLoading = false;
+      });
       fetchCoupon();
     } else {
-      throw Exception('Unable to edit caegory from the REST API');
+      throw Exception('Unable to edit voucher from the REST API');
     }
   }
 
   Future<void> deleteCoupon(String vou_id) async {
-    final response = await http
-        .post(ip + 'easy_shopping/voucher_delete.php', body: {"vou_id": vou_id});
+    final response = await http.post(ip + 'easy_shopping/voucher_delete.php',
+        body: {"vou_id": vou_id});
     print("vou_id - " + vou_id);
     print(response.statusCode);
     if (response.statusCode == 200) {
@@ -271,7 +292,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Available",
+                          "Active",
                           style: TextStyle(
                               color: isAvailableClicked
                                   ? Colors.white
@@ -304,7 +325,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Used",
+                          "Inactive",
                           style: TextStyle(
                               color: !isAvailableClicked
                                   ? Colors.white
@@ -318,6 +339,11 @@ class _AllCouponPageState extends State<AllCouponPage> {
               ],
             ),
           ),
+          isEditLoading
+              ? Container(
+                  margin: EdgeInsets.only(top: 20),
+                  child: CircularProgressIndicator())
+              : Container(),
           Expanded(
             child: isLoading
                 ? Center(child: CircularProgressIndicator())
@@ -383,13 +409,13 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.end,
                                               children: [
-                                                Text(
-                                                  "${couponListActive[index]["voucher_status"]}",
-                                                  style: TextStyle(
-                                                      color: Colors.green,
-                                                      fontWeight:
-                                                          FontWeight.normal),
-                                                ),
+                                                // Text(
+                                                //   "Active",
+                                                //   style: TextStyle(
+                                                //       color: Colors.green,
+                                                //       fontWeight:
+                                                //           FontWeight.normal),
+                                                // ),
                                                 Container(
                                                   child: Row(
                                                     children: [
@@ -498,7 +524,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                             onTap:
                                                                                 () {
                                                                               setState(() {
-                                                                                vStatusController1.text = "Used";
+                                                                                vStatusController1.text = "0";
                                                                                 print("user");
                                                                               });
                                                                             },
@@ -509,7 +535,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                               padding: EdgeInsets.only(top: 5, left: 5, bottom: 5),
                                                                               margin: EdgeInsets.only(top: 10),
                                                                               child: Text(
-                                                                                "Change to Used",
+                                                                                "Change to Inactive",
                                                                                 style: TextStyle(color: Colors.redAccent, fontSize: 11),
                                                                               ),
                                                                             ),
@@ -517,6 +543,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                           GestureDetector(
                                                                             onTap:
                                                                                 () {
+                                                                              Navigator.pop(context);
                                                                               editCoupon(couponListActive[index]["vou_id"]);
                                                                             },
                                                                             child: Container(
@@ -702,18 +729,218 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                 ],
                                               ),
                                             ),
-                                            Column(
+                                            Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.end,
                                               children: [
-                                                Container(
-                                                  child: Text(
-                                                    "${couponListUsed[index]["voucher_status"]}",
-                                                    style: TextStyle(
-                                                        color: Colors.redAccent
-                                                            .withOpacity(0.7),
-                                                        fontWeight:
-                                                            FontWeight.normal),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    showDialog(
+                                                      context: context,
+                                                      barrierDismissible: true,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        vNameController1.text =
+                                                            couponListUsed[
+                                                                    index][
+                                                                "voucher_name"];
+                                                        vAmtController1.text =
+                                                            couponListUsed[
+                                                                    index][
+                                                                "voucher_amount"];
+                                                        vDateController1.text =
+                                                            couponListUsed[
+                                                                    index][
+                                                                "vou_exp_date"];
+                                                        vStatusController1
+                                                                .text =
+                                                            couponListUsed[
+                                                                    index][
+                                                                "voucher_status"];
+                                                        return Expanded(
+                                                          child: AlertDialog(
+                                                            content: StatefulBuilder(
+                                                                builder: (BuildContext
+                                                                        context,
+                                                                    setState) {
+                                                              return SingleChildScrollView(
+                                                                physics:
+                                                                    BouncingScrollPhysics(),
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                        'Edit Voucher/Coupon'),
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      margin: EdgeInsets
+                                                                          .only(
+                                                                              top: 10),
+                                                                      decoration: BoxDecoration(
+                                                                          border: Border.all(
+                                                                              width: 0.3,
+                                                                              color: Colors.grey),
+                                                                          borderRadius: BorderRadius.circular(5)),
+                                                                      child:
+                                                                          TextField(
+                                                                        controller:
+                                                                            vNameController1,
+                                                                        decoration: InputDecoration(
+                                                                            hintText:
+                                                                                "Enter voucher/coupon name",
+                                                                            border:
+                                                                                InputBorder.none),
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      margin: EdgeInsets
+                                                                          .only(
+                                                                              top: 10),
+                                                                      decoration: BoxDecoration(
+                                                                          border: Border.all(
+                                                                              width: 0.3,
+                                                                              color: Colors.grey),
+                                                                          borderRadius: BorderRadius.circular(5)),
+                                                                      child:
+                                                                          TextField(
+                                                                        controller:
+                                                                            vAmtController1,
+                                                                        decoration: InputDecoration(
+                                                                            hintText:
+                                                                                "Enter amount",
+                                                                            border:
+                                                                                InputBorder.none),
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      margin: EdgeInsets
+                                                                          .only(
+                                                                              top: 10),
+                                                                      decoration: BoxDecoration(
+                                                                          border: Border.all(
+                                                                              width: 0.3,
+                                                                              color: Colors.grey),
+                                                                          borderRadius: BorderRadius.circular(5)),
+                                                                      child:
+                                                                          TextField(
+                                                                        controller:
+                                                                            vDateController1,
+                                                                        decoration: InputDecoration(
+                                                                            hintText:
+                                                                                "Enter expiry date (yyyy-MM-dd)",
+                                                                            border:
+                                                                                InputBorder.none),
+                                                                      ),
+                                                                    ),
+                                                                    Container(
+                                                                      padding:
+                                                                          EdgeInsets.all(
+                                                                              5),
+                                                                      margin: EdgeInsets
+                                                                          .only(
+                                                                              top: 10),
+                                                                      decoration: BoxDecoration(
+                                                                          border: Border.all(
+                                                                              width: 0.3,
+                                                                              color: Colors.grey),
+                                                                          borderRadius: BorderRadius.circular(5)),
+                                                                      child: TextField(
+                                                                          controller:
+                                                                              vStatusController1,
+                                                                          enabled:
+                                                                              false,
+                                                                          decoration: InputDecoration(
+                                                                              hintText: "Enter Status",
+                                                                              border: InputBorder.none)),
+                                                                    ),
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        setState(
+                                                                            () {
+                                                                          vStatusController1.text =
+                                                                              "1";
+                                                                          print(
+                                                                              "user");
+                                                                        });
+                                                                      },
+                                                                      child:
+                                                                          Container(
+                                                                        width: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width,
+                                                                        alignment:
+                                                                            Alignment.centerRight,
+                                                                        padding: EdgeInsets.only(
+                                                                            top:
+                                                                                5,
+                                                                            left:
+                                                                                5,
+                                                                            bottom:
+                                                                                5),
+                                                                        margin: EdgeInsets.only(
+                                                                            top:
+                                                                                10),
+                                                                        child:
+                                                                            Text(
+                                                                          "Change to Active",
+                                                                          style: TextStyle(
+                                                                              color: Colors.green,
+                                                                              fontSize: 11),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                        editCoupon(couponListUsed[index]
+                                                                            [
+                                                                            "vou_id"]);
+                                                                      },
+                                                                      child: Container(
+                                                                          width: MediaQuery.of(context).size.width,
+                                                                          margin: EdgeInsets.only(bottom: 20, top: 10),
+                                                                          padding: EdgeInsets.all(10),
+                                                                          decoration: BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(5.0)), color: mainheader, border: Border.all(width: 0.2, color: Colors.grey)),
+                                                                          child: Text(
+                                                                            "Edit",
+                                                                            style:
+                                                                                TextStyle(color: Colors.white),
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                          )),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }),
+                                                          ),
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    margin: EdgeInsets.only(
+                                                        top: 10),
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Icon(
+                                                      Icons.edit,
+                                                      color: Colors.black
+                                                          .withOpacity(0.4),
+                                                      size: 18,
+                                                    ),
                                                   ),
                                                 ),
                                                 Container(

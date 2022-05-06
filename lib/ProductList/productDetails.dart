@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/LoginPage/loginPage.dart';
 import 'package:http/http.dart' as http;
+import 'package:online_shopping_admin/Utils/utils.dart';
 import '../../main.dart';
 
 class DetailsPage extends StatefulWidget {
@@ -24,7 +25,13 @@ class DetailsPageState extends State<DetailsPage>
   bool _isLoggedIn = false;
   String _debugLabelString = "", review = '', _ratingStatus = '';
   bool _requireConsent = false, isfav = false;
-  int _current = 0, num = 0, totalFav = 10;
+  int _current = 0,
+      num = 0,
+      totalFav = 10,
+      count = 0,
+      discountPercent = 0,
+      discountAmt = 0,
+      quantity = 0;
   double tk = 0.0;
   List imgList = [
     "assets/tshirt.png",
@@ -44,6 +51,11 @@ class DetailsPageState extends State<DetailsPage>
   @override
   void initState() {
     super.initState();
+
+    discountAmt = Utils().getProductDiscount(
+        widget.product_info["product_price"],
+        widget.product_info["prod_discount"]);
+    quantity = int.parse(widget.product_info["prod_quantity"]);
   }
 
   int _rating = 0;
@@ -85,6 +97,8 @@ class DetailsPageState extends State<DetailsPage>
 
   @override
   Widget build(BuildContext context) {
+    var discountAmt2 = discountAmt;
+    var discountAmt22 = discountAmt2;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -343,6 +357,7 @@ class DetailsPageState extends State<DetailsPage>
                     ],
                   ),
                 ),
+                
                 Container(
                   width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.only(left: 20, right: 20, top: 5),
@@ -355,19 +370,56 @@ class DetailsPageState extends State<DetailsPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.attach_money,
-                            color: Colors.black,
-                            size: 20,
+                        children: [
+                          Container(
+                            child: Row(
+                              children: <Widget>[
+                                //Icon(
+                                //Icons.attach_money,
+                                //color: discountAmt == 0.0
+                                //? Colors.black
+                                //: Colors.grey,
+                                //size: 20,
+                                //),
+                                SizedBox(
+                                  width: 0,
+                                ),
+                                Text(
+                                  "Tk. ${widget.product_info["product_price"]}",
+                                  style: TextStyle(
+                                      color: discountAmt == 0.0
+                                          ? Colors.black
+                                          : Colors.grey,
+                                      fontSize: 17,
+                                      decoration: discountAmt == 0.0
+                                          ? TextDecoration.none
+                                          : TextDecoration.lineThrough),
+                                )
+                              ],
+                            ),
                           ),
-                          SizedBox(
-                            width: 0,
-                          ),
-                          Text(
-                            widget.product_info["product_price"],
-                            style: TextStyle(color: Colors.black, fontSize: 17),
-                          )
+                          discountAmt == 0.0
+                              ? Container()
+                              : Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  child: Row(
+                                    children: <Widget>[
+                                      //Icon(
+                                      //Icons.attach_money,
+                                      //color: Colors.black,
+                                      //size: 20,
+                                      //),
+                                      SizedBox(
+                                        width: 0,
+                                      ),
+                                      Text(
+                                        "Tk. $discountAmt (${widget.product_info["prod_discount"]}%)",
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 17),
+                                      )
+                                    ],
+                                  ),
+                                ),
                         ],
                       ),
                       Container(

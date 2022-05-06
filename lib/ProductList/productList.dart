@@ -1,10 +1,14 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/ProductList/addProduct.dart';
 import 'package:online_shopping_admin/ProductList/productDetails.dart';
+import 'package:online_shopping_admin/Utils/utils.dart';
 import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
+
+import 'editproduct.dart';
 
 class ProductList extends StatefulWidget {
   @override
@@ -13,8 +17,10 @@ class ProductList extends StatefulWidget {
 
 class _ProductListState extends State<ProductList> {
   var prodList = [];
-    //TextEditingController productController = new TextEditingController();
-    //TextEditingController productEditController = new TextEditingController();
+  TextEditingController productController = new TextEditingController();
+  TextEditingController productEditController = new TextEditingController();
+
+  int discountPercent = 0, discountAmt = 0;
 
   @override
   void initState() {
@@ -38,33 +44,38 @@ class _ProductListState extends State<ProductList> {
     }
   }
 
-  Future<void> deleteProduct(String prod_id) async {
-    final response = await http
-        .post(ip + 'easy_shopping/product_delete.php', body: {"prod_id": prod_id});
+  Future<void> deleteProduct(String prod_id, String cat_id) async {
+    final response =
+        await http.post(ip + 'easy_shopping/product_delete.php', body: {
+      "prod_id": prod_id,
+      "cat_id": cat_id,
+    });
     print("prod_id - " + prod_id);
     print(response.statusCode);
     if (response.statusCode == 200) {
-      fetchProduct();
+      if (response.body == "Success") {
+        fetchProduct();
+      }
     } else {
       throw Exception('Unable to delete product from the REST API');
     }
   }
 
   //Future<void> editProduct(String name, String prod_id) async {
-    //final response =
-        //await http.post(ip + 'easy_shopping/product_edit.php', body: {
-      //"product_name": name,
-      //"prod_id": prod_id,
-    //});
-    //print("name - " + name);
-    //print(response.statusCode);
-    //if (response.statusCode == 200) {
-      //Navigator.pop(context);
-      //productEditController.clear();
-      //fetchProduct();
-    //} else {
-      //throw Exception('Unable to edit product from the REST API');
-    //}
+  //final response =
+  //await http.post(ip + 'easy_shopping/product_edit.php', body: {
+  //"product_name": name,
+  //"prod_id": prod_id,
+  //});
+  //print("name - " + name);
+  //print(response.statusCode);
+  //if (response.statusCode == 200) {
+  //Navigator.pop(context);
+  //productEditController.clear();
+  //fetchProduct();
+  //} else {
+  //throw Exception('Unable to edit product from the REST API');
+  //}
   //}
 
   @override
@@ -126,11 +137,17 @@ class _ProductListState extends State<ProductList> {
         child: Container(
           child: Column(
             children: List.generate(prodList.length, (index) {
+              String img = prodList[index]["product_img"];
+              print("pic - ${ip + img}");
+              discountAmt = Utils().getProductDiscount(
+                  prodList[index]["product_price"],
+                  prodList[index]["prod_discount"]);
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DetailsPage(prodList[index])),
+                    MaterialPageRoute(
+                        builder: (context) => DetailsPage(prodList[index])),
                   );
                 },
                 child: Container(
@@ -147,12 +164,19 @@ class _ProductListState extends State<ProductList> {
                             child: Row(
                               children: <Widget>[
                                 Container(
-                                    margin: EdgeInsets.only(right: 10, left: 0),
-                                    height: 90,
-                                    width: 80,
-                                    child: prodList[index]["product_img"] == ""
-                                        ? Image.asset('assets/product_back.jpg')
-                                        : Image.asset('assets/product_back.jpg')),
+                                  margin: EdgeInsets.only(right: 10, left: 0),
+                                  height: 90,
+                                  width: 80,
+                                  child: img == ""
+                                      ? Image.asset('assets/product_back.jpg')
+                                      : CachedNetworkImage(
+                                          imageUrl: "${ip + img}",
+                                          placeholder: (context, url) =>
+                                              CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              Icon(Icons.error),
+                                        ),
+                                ),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -194,17 +218,32 @@ class _ProductListState extends State<ProductList> {
                                           children: <Widget>[
                                             Row(
                                               children: <Widget>[
-                                                Icon(
-                                                  Icons.attach_money,
-                                                  color: Colors.black87,
-                                                  size: 18,
-                                                ),
+                                                // Icon(
+                                                //   Icons.attach_money,
+                                                //   color: Colors.black87,
+                                                //   size: 18,
+                                                // ),
+                                                //Text(
+                                                //"Tk. $discountAmt",
+                                                //"Tk. ${prodList[index]["product_price"]}",
+                                                //style: TextStyle(
+                                                //fontSize: 16,
+                                                //color: Colors.black87),
+                                                //),
                                                 Text(
-                                                  "${prodList[index]["product_price"]}",
+                                                  "Tk. ${prodList[index]["product_price"]}",
                                                   style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.black87,
-                                                  ),
+                                                      fontSize: discountAmt == 0
+                                                          ? 16
+                                                          : 13,
+                                                      color: discountAmt == 0
+                                                          ? Colors.black87
+                                                          : Colors.grey,
+                                                      decoration: discountAmt ==
+                                                              0
+                                                          ? TextDecoration.none
+                                                          : TextDecoration
+                                                              .lineThrough),
                                                 ),
                                               ],
                                             ),
@@ -216,7 +255,50 @@ class _ProductListState extends State<ProductList> {
                                             // ),
                                           ],
                                         ),
-                                      )
+                                      ),
+                                      discountAmt == 0
+                                          ? Container()
+                                          : Container(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Container(
+                                                    margin:
+                                                        EdgeInsets.only(top: 0),
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        // Icon(
+                                                        //   Icons.attach_money,
+                                                        //   color: Colors.black87,
+                                                        //   size: 16,
+                                                        // ),
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              "Tk. $discountAmt",
+                                                              //"${prodList[index]["product_price"]}/-",
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: Colors
+                                                                      .black87),
+                                                            ),
+                                                            Text(
+                                                              " (${prodList[index]["prod_discount"]}%)",
+                                                              //"${prodList[index]["product_price"]}/-",
+                                                              style: TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .black87),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                     ],
                                   ),
                                 ),
@@ -231,92 +313,92 @@ class _ProductListState extends State<ProductList> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => AddProduct()),
-                                          //builder: (context) => EditProduct()),
+                                          builder: (context) =>
+                                              EditProduct(prodList[index])),
                                     );
                                   },
                                   //onTap: () {
-                                    //productEditController.text =
-                                        //productList[index]["product_name"];
-                                    //showDialog(
-                                      //context: context,
-                                      //barrierDismissible: true,
-                                      //builder: (BuildContext context) {
-                                        //return Expanded(
-                                          //child: AlertDialog(
-                                            //title: Column(
-                                              //crossAxisAlignment:
-                                                  //CrossAxisAlignment.start,
-                                              //children: [
-                                                //Text('Edit Product Details'),
-                                                //Container(
-                                                  //padding: EdgeInsets.all(5),
-                                                  //margin:
-                                                      //EdgeInsets.only(top: 10),
-                                                  //decoration: BoxDecoration(
-                                                      //border: Border.all(
-                                                          //width: 0.3,
-                                                          //color: Colors.grey),
-                                                      //borderRadius:
-                                                          //BorderRadius.circular(
-                                                             //5)),
-                                                  //child: TextField(
-                                                    //controller:
-                                                        //productEditController,
-                                                    //decoration: InputDecoration(
-                                                        //hintText:
-                                                            //"Enter product name",
-                                                        //border:
-                                                            //InputBorder.none),
-                                                  //),
-                                                //),
-                                                //GestureDetector(
-                                                  //onTap: () {
-                                                    //if (productEditController
-                                                            //.text !=
-                                                        //"") {
-                                                      //editProduct(
-                                                          //productEditController
-                                                              //.text,
-                                                          //productList[index]
-                                                              //["prod_id"]);
-                                                    //}
-                                                  //},
-                                                  //child: Container(
-                                                      //width:
-                                                          //MediaQuery.of(context)
-                                                              //.size
-                                                              //.width,
-                                                      //margin: EdgeInsets.only(
-                                                          //bottom: 20, top: 10),
-                                                      //padding:
-                                                          //EdgeInsets.all(10),
-                                                      //decoration: BoxDecoration(
-                                                          //borderRadius:
-                                                              //BorderRadius.all(
-                                                                  //Radius
-                                                                      //.circular(
-                                                                          //5.0)),
-                                                          //color: mainheader,
-                                                          //border: Border.all(
-                                                              //width: 0.2,
-                                                              //color:
-                                                                  //Colors.grey)),
-                                                      //child: Text(
-                                                        //"Edit",
-                                                        //style: TextStyle(
-                                                            //color:
-                                                                //Colors.white),
-                                                        //textAlign:
-                                                            //TextAlign.center,
-                                                      //)),
-                                               // ),
-                                              //],
-                                            //),
-                                          //),
-                                       // );
-                                      //},
-                                    //);
+                                  //productEditController.text =
+                                  //productList[index]["product_name"];
+                                  //showDialog(
+                                  //context: context,
+                                  //barrierDismissible: true,
+                                  //builder: (BuildContext context) {
+                                  //return Expanded(
+                                  //child: AlertDialog(
+                                  //title: Column(
+                                  //crossAxisAlignment:
+                                  //CrossAxisAlignment.start,
+                                  //children: [
+                                  //Text('Edit Product Details'),
+                                  //Container(
+                                  //padding: EdgeInsets.all(5),
+                                  //margin:
+                                  //EdgeInsets.only(top: 10),
+                                  //decoration: BoxDecoration(
+                                  //border: Border.all(
+                                  //width: 0.3,
+                                  //color: Colors.grey),
+                                  //borderRadius:
+                                  //BorderRadius.circular(
+                                  //5)),
+                                  //child: TextField(
+                                  //controller:
+                                  //productEditController,
+                                  //decoration: InputDecoration(
+                                  //hintText:
+                                  //"Enter product name",
+                                  //border:
+                                  //InputBorder.none),
+                                  //),
+                                  //),
+                                  //GestureDetector(
+                                  //onTap: () {
+                                  //if (productEditController
+                                  //.text !=
+                                  //"") {
+                                  //editProduct(
+                                  //productEditController
+                                  //.text,
+                                  //productList[index]
+                                  //["prod_id"]);
+                                  //}
+                                  //},
+                                  //child: Container(
+                                  //width:
+                                  //MediaQuery.of(context)
+                                  //.size
+                                  //.width,
+                                  //margin: EdgeInsets.only(
+                                  //bottom: 20, top: 10),
+                                  //padding:
+                                  //EdgeInsets.all(10),
+                                  //decoration: BoxDecoration(
+                                  //borderRadius:
+                                  //BorderRadius.all(
+                                  //Radius
+                                  //.circular(
+                                  //5.0)),
+                                  //color: mainheader,
+                                  //border: Border.all(
+                                  //width: 0.2,
+                                  //color:
+                                  //Colors.grey)),
+                                  //child: Text(
+                                  //"Edit",
+                                  //style: TextStyle(
+                                  //color:
+                                  //Colors.white),
+                                  //textAlign:
+                                  //TextAlign.center,
+                                  //)),
+                                  //),
+                                  //],
+                                  //),
+                                  //),
+                                  //);
+                                  //},
+                                  //);
                                   //},
                                   child: Container(
                                       padding: EdgeInsets.all(10),
@@ -356,6 +438,11 @@ class _ProductListState extends State<ProductList> {
                                               GestureDetector(
                                                 onTap: () {
                                                   Navigator.pop(context);
+                                                  deleteProduct(
+                                                      prodList[index]
+                                                          ["prod_id"],
+                                                      prodList[index]
+                                                          ["cat_id"]);
                                                 },
                                                 child: Padding(
                                                   padding:

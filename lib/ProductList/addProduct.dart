@@ -24,11 +24,12 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController prodshipController = new TextEditingController();
   TextEditingController prodmanufController = new TextEditingController();
   TextEditingController prodsernumController = new TextEditingController();
+  TextEditingController prodstockController = new TextEditingController();
 
   List<String> categoryList = [];
   //List<String> categoryList = ["Phone", "Computer", "Television"];
   String _value = "", catId = "", totalProduct = "";
-  Future<File> fileImage;
+  File fileImage;
   var catInfoList = [];
 
   //@override
@@ -44,9 +45,11 @@ class _AddProductState extends State<AddProduct> {
     fetchCategory();
   }
 
-  pickImagefromGallery(ImageSource src) {
+  Future<Null> pickImagefromGallery(ImageSource src) async {
+    final image = await ImagePicker.pickImage(source: src);
+
     setState(() {
-      fileImage = ImagePicker.pickImage(source: src);
+      fileImage = image;
     });
   }
 
@@ -77,11 +80,13 @@ class _AddProductState extends State<AddProduct> {
   }
 
   Future<void> addProduct() async {
-    print({
+    List<int> imageBytes = fileImage.readAsBytesSync();
+    print(imageBytes);
+    String base64Image = base64Encode(imageBytes);
+    var bodyData = {
       "product_name": prodnameController.text,
       "cat_id": catId,
-      "cat_name": _value,
-      "product_img": "",
+      "product_img": base64Image,
       "product_code": prodcodeController.text,
       "product_price": prodpriceController.text,
       "prod_discount": proddiscController.text,
@@ -92,25 +97,12 @@ class _AddProductState extends State<AddProduct> {
       "shipping_weight": prodshipController.text,
       "manuf_name": prodmanufController.text,
       "prod_serial_num": prodsernumController.text,
-    });
+      "stock": prodstockController.text,
+    };
+    print(bodyData);
 
     final response =
-        await http.post(ip + 'easy_shopping/product_add.php', body: {
-      "product_name": prodnameController.text,
-      "cat_id": catId,
-      "cat_name": _value,
-      "product_img": "",
-      "product_code": prodcodeController.text,
-      "product_price": prodpriceController.text,
-      "prod_discount": proddiscController.text,
-      "prod_disc_date": proddiscdateController.text,
-      "prod_description": proddesController.text,
-      "prod_dimension": proddimController.text,
-      "product_size": prodsizeController.text,
-      "shipping_weight": prodshipController.text,
-      "manuf_name": prodmanufController.text,
-      "prod_serial_num": prodsernumController.text,
-    });
+        await http.post(ip + 'easy_shopping/product_add.php', body: bodyData);
 
     print(response.statusCode);
     print("response.body");
@@ -128,6 +120,7 @@ class _AddProductState extends State<AddProduct> {
       prodshipController.clear();
       prodmanufController.clear();
       prodsernumController.clear();
+      prodstockController.clear();
       editCategoryProductCount();
       Navigator.pop(context);
       Navigator.push(
@@ -330,25 +323,25 @@ class _AddProductState extends State<AddProduct> {
                       border: InputBorder.none),
                 ),
               ),
-              Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Discount Expire Date",
-                    style: TextStyle(color: subheader, fontSize: 12),
-                  )),
-              Container(
-                padding: EdgeInsets.all(5),
-                margin: EdgeInsets.only(top: 10),
-                decoration: BoxDecoration(
-                    border: Border.all(width: 0.3, color: Colors.grey),
-                    borderRadius: BorderRadius.circular(5)),
-                child: TextField(
-                  controller: proddiscdateController,
-                  decoration: InputDecoration(
-                      hintText: "Enter product discount expire date",
-                      border: InputBorder.none),
-                ),
-              ),
+              //Container(
+              //margin: EdgeInsets.only(top: 20),
+              //child: Text(
+              //"Product Discount Expire Date",
+              //style: TextStyle(color: subheader, fontSize: 12),
+              //)),
+              //Container(
+              //padding: EdgeInsets.all(5),
+              //margin: EdgeInsets.only(top: 10),
+              //decoration: BoxDecoration(
+              //border: Border.all(width: 0.3, color: Colors.grey),
+              //borderRadius: BorderRadius.circular(5)),
+              //child: TextField(
+              //controller: proddiscdateController,
+              //decoration: InputDecoration(
+              //hintText: "Enter product discount expire date",
+              //border: InputBorder.none),
+              //),
+              //),
               Container(
                   margin: EdgeInsets.only(top: 20),
                   child: Text(
@@ -446,6 +439,24 @@ class _AddProductState extends State<AddProduct> {
               Container(
                   margin: EdgeInsets.only(top: 20),
                   child: Text(
+                    "Product Stock",
+                    style: TextStyle(color: subheader, fontSize: 12),
+                  )),
+              Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.3, color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5)),
+                child: TextField(
+                  controller: prodstockController,
+                  decoration: InputDecoration(
+                      hintText: "Enter stock", border: InputBorder.none),
+                ),
+              ),
+              Container(
+                  margin: EdgeInsets.only(top: 20),
+                  child: Text(
                     "Product Image",
                     style: TextStyle(color: subheader, fontSize: 12),
                   )),
@@ -457,51 +468,38 @@ class _AddProductState extends State<AddProduct> {
                   child: Center(
                     child: Stack(
                       children: <Widget>[
-                        FutureBuilder<File>(
-                          future: fileImage,
-                          builder: (BuildContext context,
-                              AsyncSnapshot<File> snapshot) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.done &&
-                                snapshot.data != null) {
-                              return Container(
+                        fileImage != null
+                            ? Container(
                                 margin: EdgeInsets.only(top: 10),
                                 width: MediaQuery.of(context).size.width,
                                 height: 200,
                                 padding: EdgeInsets.all(1.0),
                                 decoration: new BoxDecoration(
-                                    color: Colors.grey,
-                                    border: Border.all(
-                                        width: 0.3, color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(5),
-                                    image: DecorationImage(
-                                        image: FileImage(snapshot.data),
-                                        fit: BoxFit.cover)),
-                              );
-                            } else if (snapshot.error != null) {
-                              return const Text(
-                                'Error Picking Image',
-                                textAlign: TextAlign.center,
-                              );
-                            } else {
-                              return Container(
+                                  color: Colors.grey.withOpacity(0.4),
+                                  border: Border.all(
+                                      width: 0.3, color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(5),
+                                  image: DecorationImage(
+                                    image: FileImage(fileImage),
+                                  ),
+                                ),
+                              )
+                            : Container(
                                 margin: EdgeInsets.only(top: 10),
                                 width: MediaQuery.of(context).size.width,
                                 height: 200,
                                 padding: EdgeInsets.all(1.0),
                                 decoration: new BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.4),
-                                    border: Border.all(
-                                        width: 0.3, color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(5),
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/product_back.jpg'),
-                                        fit: BoxFit.cover)),
-                              );
-                            }
-                          },
-                        ),
+                                  color: Colors.grey.withOpacity(0.4),
+                                  border: Border.all(
+                                      width: 0.3, color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(5),
+                                  image: DecorationImage(
+                                      image:
+                                          AssetImage('assets/product_back.jpg'),
+                                      fit: BoxFit.cover),
+                                ),
+                              ),
                       ],
                     ),
                   ),

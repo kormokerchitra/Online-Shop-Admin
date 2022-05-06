@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/ProductList/productDetails.dart';
+import 'package:online_shopping_admin/Utils/utils.dart';
 import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,6 +16,8 @@ class _DiscountListState extends State<DiscountList> {
   var prodList = [];
   TextEditingController discPercentController = new TextEditingController();
   TextEditingController discDateController = new TextEditingController();
+
+  int discountPercent = 0, discountAmt = 0;
 
   @override
   void initState() {
@@ -75,6 +79,12 @@ class _DiscountListState extends State<DiscountList> {
         child: Container(
           child: Column(
             children: List.generate(prodList.length, (index) {
+              String img = prodList[index]["product_img"];
+              print("pic - ${ip + img}");
+              discountAmt = Utils().getProductDiscount(
+                  prodList[index]["product_price"],
+                  prodList[index]["prod_discount"]);
+              var discountAmt2 = discountAmt;
               return prodList[index]["prod_discount"] != "0"
                   ? GestureDetector(
                       onTap: () {
@@ -99,17 +109,22 @@ class _DiscountListState extends State<DiscountList> {
                                   child: Row(
                                     children: <Widget>[
                                       Container(
-                                          margin: EdgeInsets.only(
-                                              right: 10, left: 0),
-                                          height: 90,
-                                          width: 80,
-                                          child: prodList[index]
-                                                      ["product_img"] ==
-                                                  ""
-                                              ? Image.asset(
-                                                  'assets/product_back.jpg')
-                                              : Image.asset(
-                                                  'assets/product_back.jpg')),
+                                        margin:
+                                            EdgeInsets.only(right: 10, left: 0),
+                                        height: 90,
+                                        width: 80,
+                                        child: img == ""
+                                            ? Image.asset(
+                                                'assets/product_back.jpg')
+                                            : CachedNetworkImage(
+                                                imageUrl: "${ip + img}",
+                                                placeholder: (context, url) =>
+                                                    CircularProgressIndicator(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Icon(Icons.error),
+                                              ),
+                                      ),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -128,9 +143,9 @@ class _DiscountListState extends State<DiscountList> {
                                               child: Row(
                                                 children: <Widget>[
                                                   //Icon(
-                                                    //Icons.star,
-                                                    //color: golden,
-                                                    //size: 17,
+                                                  //Icons.star,
+                                                  //color: golden,
+                                                  //size: 17,
                                                   //),
                                                   Container(
                                                     margin: EdgeInsets.only(
@@ -145,8 +160,8 @@ class _DiscountListState extends State<DiscountList> {
                                               ),
                                             ),
                                             Container(
-                                              margin: EdgeInsets.only(top: 10),
-                                              child: Row(
+                                              margin: EdgeInsets.only(top: 5),
+                                              child: Column(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceBetween,
@@ -154,25 +169,83 @@ class _DiscountListState extends State<DiscountList> {
                                                   Row(
                                                     children: <Widget>[
                                                       //Icon(
-                                                        //Icons.attach_money,
-                                                        //color: Colors.black87,
-                                                        //size: 18,
+                                                      //Icons.attach_money,
+                                                      //color: Colors.black87,
+                                                      //size: 18,
                                                       //),
+                                                      //Text(
+                                                      //"Date: ${prodList[index]["prod_disc_date"]}",
+                                                      //style: TextStyle(
+                                                      //fontSize: 16,
+                                                      //color: Colors.black87,
+                                                      //),
+                                                      //),
+                                                      //Text(
+                                                      //"Tk. ${prodList[index]["product_price"]}",
+                                                      //style: TextStyle(
+                                                      //fontSize: 16,
+                                                      //color: Colors.black87,
+                                                      //),
+                                                      //),
+
                                                       Text(
-                                                        "Date: ${prodList[index]["prod_disc_date"]}",
+                                                        "Tk. ${prodList[index]["product_price"]}",
                                                         style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.black87,
-                                                        ),
+                                                            fontSize:
+                                                                discountAmt == 0
+                                                                    ? 16
+                                                                    : 13,
+                                                            color:
+                                                                discountAmt ==
+                                                                        0
+                                                                    ? Colors
+                                                                        .black87
+                                                                    : Colors
+                                                                        .grey,
+                                                            decoration: discountAmt ==
+                                                                    0
+                                                                ? TextDecoration
+                                                                    .none
+                                                                : TextDecoration
+                                                                    .lineThrough),
                                                       ),
                                                     ],
                                                   ),
-
-                                                  // Icon(
-                                                  //   Icons.delete,
-                                                  //   color: Colors.grey,
-                                                  //   size: 23,
-                                                  // ),
+                                                  discountAmt == 0
+                                                      ? Container()
+                                                      : Container(
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: <Widget>[
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        top: 0),
+                                                                child: Row(
+                                                                  children: <
+                                                                      Widget>[
+                                                                    // Icon(
+                                                                    //   Icons.attach_money,
+                                                                    //   color: Colors.black87,
+                                                                    //   size: 16,
+                                                                    // ),
+                                                                    Text(
+                                                                      "Tk. $discountAmt",
+                                                                      //"${prodList[index]["product_price"]}/-",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              16,
+                                                                          color:
+                                                                              Colors.black87),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
                                                 ],
                                               ),
                                             )
@@ -221,27 +294,27 @@ class _DiscountListState extends State<DiscountList> {
                                                               InputBorder.none),
                                                     ),
                                                   ),
-                                                  Container(
-                                                    padding: EdgeInsets.all(5),
-                                                    margin: EdgeInsets.only(
-                                                        top: 10),
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            width: 0.3,
-                                                            color: Colors.grey),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5)),
-                                                    child: TextField(
-                                                      controller:
-                                                          discDateController,
-                                                      decoration: InputDecoration(
-                                                          hintText:
-                                                              "Enter date (YYYY-MM-DD)",
-                                                          border:
-                                                              InputBorder.none),
-                                                    ),
-                                                  ),
+                                                  //Container(
+                                                  //padding: EdgeInsets.all(5),
+                                                  //margin: EdgeInsets.only(
+                                                  //top: 10),
+                                                  //decoration: BoxDecoration(
+                                                  //border: Border.all(
+                                                  //width: 0.3,
+                                                  //color: Colors.grey),
+                                                  //borderRadius:
+                                                  //BorderRadius
+                                                  //.circular(5)),
+                                                  //child: TextField(
+                                                  //controller:
+                                                  //discDateController,
+                                                  //decoration: InputDecoration(
+                                                  //hintText:
+                                                  //"Enter date (YYYY-MM-DD)",
+                                                  //border:
+                                                  //InputBorder.none),
+                                                  //),
+                                                  //),
                                                   GestureDetector(
                                                     onTap: () {
                                                       editProductDisc(

@@ -56,7 +56,7 @@ class _ReviewProductlistState extends State<ReviewProductlist> {
                   Container(
                     child: Row(
                       children: <Widget>[
-                        Text("Product List",
+                        Text("Review Product List",
                             style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
@@ -81,6 +81,7 @@ class _ReviewProductlistState extends State<ReviewProductlist> {
                       MaterialPageRoute(
                           builder: (context) => ReviewList(
                               prodList[index]["prod_id"],
+                              prodList[index]["cat_id"],
                               prodList[index]["product_name"])),
                     );
                   },
