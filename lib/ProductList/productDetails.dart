@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/LoginPage/loginPage.dart';
@@ -158,20 +159,21 @@ class DetailsPageState extends State<DetailsPage>
                                   border: InputBorder.none),
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.only(top: 10),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(width: 0.3, color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: TextField(
-                              controller: discDateController,
-                              decoration: InputDecoration(
-                                  hintText: "Enter date (yyyy-MM-dd)",
-                                  border: InputBorder.none),
-                            ),
-                          ),
+                          //Container(
+                            //padding: EdgeInsets.all(5),
+                            //margin: EdgeInsets.only(top: 10),
+                            //decoration: BoxDecoration(
+                                //border:
+                                    //Border.all(width: 0.3, color: Colors.grey),
+                                //borderRadius: BorderRadius.circular(5)),
+                            //child: TextField(
+                              //controller: discDateController,
+                              //decoration: InputDecoration(
+                                  //hintText: "Enter date (yyyy-MM-dd)",
+                                  //border: InputBorder.none),
+                            //),
+                          //),
+
                            //GestureDetector(
                             //onTap: () {
                               //if (categoryController.text != "") {
@@ -208,7 +210,7 @@ class DetailsPageState extends State<DetailsPage>
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Text("Add Discount",
+                child: Text("Edit Discount",
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -244,8 +246,13 @@ class DetailsPageState extends State<DetailsPage>
                               ? Image.asset(
                                   'assets/product_back.jpg',
                                 )
-                              : Image.asset(
-                                  'assets/product_back.jpg',
+                              : CachedNetworkImage(
+                                  imageUrl:
+                                      "${ip + widget.product_info["product_img"]}",
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
                                 ),
                           // child: CarouselSlider(
                           //   //height: 400.0,

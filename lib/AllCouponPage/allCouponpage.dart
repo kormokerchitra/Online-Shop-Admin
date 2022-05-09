@@ -237,7 +237,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                     border: Border.all(
                                         width: 0.2, color: Colors.grey)),
                                 child: Text(
-                                  "Create",
+                                  "Add",
                                   style: TextStyle(color: Colors.white),
                                   textAlign: TextAlign.center,
                                 )),
