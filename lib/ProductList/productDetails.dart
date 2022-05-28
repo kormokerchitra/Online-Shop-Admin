@@ -5,6 +5,7 @@ import 'package:online_shopping_admin/LoginPage/loginPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:online_shopping_admin/Utils/utils.dart';
 import '../../main.dart';
+import 'editproduct.dart';
 
 class DetailsPage extends StatefulWidget {
   final product_info;
@@ -160,28 +161,34 @@ class DetailsPageState extends State<DetailsPage>
                             ),
                           ),
                           //Container(
-                            //padding: EdgeInsets.all(5),
-                            //margin: EdgeInsets.only(top: 10),
-                            //decoration: BoxDecoration(
-                                //border:
-                                    //Border.all(width: 0.3, color: Colors.grey),
-                                //borderRadius: BorderRadius.circular(5)),
-                            //child: TextField(
-                              //controller: discDateController,
-                              //decoration: InputDecoration(
-                                  //hintText: "Enter date (yyyy-MM-dd)",
-                                  //border: InputBorder.none),
-                            //),
+                          //padding: EdgeInsets.all(5),
+                          //margin: EdgeInsets.only(top: 10),
+                          //decoration: BoxDecoration(
+                          //border:
+                          //Border.all(width: 0.3, color: Colors.grey),
+                          //borderRadius: BorderRadius.circular(5)),
+                          //child: TextField(
+                          //controller: discDateController,
+                          //decoration: InputDecoration(
+                          //hintText: "Enter date (yyyy-MM-dd)",
+                          //border: InputBorder.none),
+                          //),
                           //),
 
-                           //GestureDetector(
-                            //onTap: () {
-                              //if (categoryController.text != "") {
-                                //addProductDisc(categoryController.text);
-                              //}
-                            //},
+                          //GestureDetector(
+                          //onTap: () {
+                          //if (categoryController.text != "") {
+                          //addProductDisc(categoryController.text);
+                          //}
+                          //},
                           GestureDetector(
                             onTap: () {
+                              // Navigator.push(
+                              //         context,
+                              //         MaterialPageRoute(
+                              //             builder: (context) =>
+                              //                 EditProduct(prodList[index])),
+                              //       );
                               editProductDisc(widget.product_info["prod_id"]);
                             },
                             child: Container(
@@ -356,15 +363,36 @@ class DetailsPageState extends State<DetailsPage>
                             style:
                                 TextStyle(fontSize: 14, color: Colors.black45),
                           ),
-                          Text(widget.product_info["product_size"],
+                          Text(
+                              widget.product_info["product_size"] == ""
+                                  ? "N/A"
+                                  : "${widget.product_info["product_size"]}",
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black54))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            "Stock: ",
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.black45),
+                          ),
+                          Text(
+                              widget.product_info["prod_quantity"] == "0"
+                                  ? "N/A"
+                                  : "${widget.product_info["prod_quantity"]}",
+                              style: TextStyle(
+                                  fontSize: 16, color: Colors.black54))
                         ],
                       ),
                     ],
                   ),
                 ),
-                
+
                 Container(
                   width: MediaQuery.of(context).size.width,
                   margin: EdgeInsets.only(left: 20, right: 20, top: 5),
@@ -523,12 +551,24 @@ class DetailsPageState extends State<DetailsPage>
                                     "Product dimension",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["prod_dimension"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["prod_dimension"] ==
+                                              ""
+                                          ? "N/A"
+                                          : "${widget.product_info["prod_dimension"]}",
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
+                                  //Container(
+                                  //child: Text(
+                                  //widget.product_info["prod_dimension"],
+                                  //textAlign: TextAlign.start,
+                                  //style: TextStyle(color: Colors.black54),
+                                  //))
                                 ],
                               ),
                             ),
@@ -548,12 +588,20 @@ class DetailsPageState extends State<DetailsPage>
                                     "Shipping Weight",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["shipping_weight"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["shipping_weight"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
+                                  //Container(
+                                  //child: Text(
+                                  //widget.product_info["shipping_weight"],
+                                  //textAlign: TextAlign.start,
+                                  //style: TextStyle(color: Colors.black54),
+                                  //))
                                 ],
                               ),
                             ),
@@ -573,12 +621,21 @@ class DetailsPageState extends State<DetailsPage>
                                     "Manufacturer",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["manuf_name"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["manuf_name"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
+                                  //Container(
+                                  //child: Text(
+                                  //widget.product_info["manuf_name"],
+                                  //textAlign: TextAlign.start,
+                                  //style: TextStyle(color: Colors.black54),
+                                  //))
                                 ],
                               ),
                             ),
@@ -598,12 +655,21 @@ class DetailsPageState extends State<DetailsPage>
                                     "SIN",
                                     style: TextStyle(color: Colors.grey),
                                   )),
-                                  Container(
-                                      child: Text(
-                                    widget.product_info["prod_serial_num"],
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(color: Colors.black54),
-                                  ))
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Container(
+                                        child: Text(
+                                      widget.product_info["prod_serial_num"],
+                                      textAlign: TextAlign.end,
+                                      style: TextStyle(color: Colors.black54),
+                                    )),
+                                  )
+                                  //Container(
+                                  //child: Text(
+                                  //widget.product_info["prod_serial_num"],
+                                  //textAlign: TextAlign.start,
+                                  //style: TextStyle(color: Colors.black54),
+                                  //))
                                 ],
                               ),
                             ),

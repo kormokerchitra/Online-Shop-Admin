@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:online_shopping_admin/AllProductPage/allProductPage.dart';
 import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
 
@@ -37,8 +38,8 @@ class _CategoryListState extends State<CategoryList> {
   }
 
   Future<void> deleteCategory(String cat_id) async {
-    final response = await http
-        .post(ip + 'easy_shopping/category_delete.php', body: {"cat_id": cat_id});
+    final response = await http.post(ip + 'easy_shopping/category_delete.php',
+        body: {"cat_id": cat_id});
     print("cat_id - " + cat_id);
     print(response.statusCode);
     if (response.statusCode == 200) {
@@ -187,7 +188,16 @@ class _CategoryListState extends State<CategoryList> {
           child: Column(
             children: List.generate(categoryList.length, (index) {
               return GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AllProductPage(
+                              cat_id: categoryList[index]["cat_id"],
+                              cat_name: categoryList[index]["cat_name"],
+                            )),
+                  );
+                },
                 child: Container(
                   margin:
                       EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 0),

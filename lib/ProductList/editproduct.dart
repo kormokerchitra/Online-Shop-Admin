@@ -89,9 +89,11 @@ class _EditProductState extends State<EditProduct> {
   }
 
   Future<void> editProduct() async {
-    List<int> imageBytes = fileImage.readAsBytesSync();
-    print(imageBytes);
-    String base64Image = base64Encode(imageBytes);
+    if (fileImage != null) {
+      List<int> imageBytes = fileImage.readAsBytesSync();
+      print(imageBytes);
+      base64Image = base64Encode(imageBytes);
+    }
     var bodyData = {
       "product_name": prodnameEditController.text,
       "product_code": prodcodeEditController.text,

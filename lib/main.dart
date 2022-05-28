@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Easy Shopping Admin',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: subheader,
       ),
       home: userEmail == null || userEmail == "" ? LoginPage() : HomePage(),
     );

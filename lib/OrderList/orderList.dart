@@ -164,7 +164,7 @@ class _OrderListState extends State<OrderList> {
                                     Container(
                                       margin: EdgeInsets.only(top: 5),
                                       child: Text(
-                                        "Date: ${orderList[index]["delivery_date"]}",
+                                        "Delivery Date: ${orderList[index]["delivery_date"]}",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 15,

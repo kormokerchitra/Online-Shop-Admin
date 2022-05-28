@@ -28,7 +28,7 @@ class _AddProductState extends State<AddProduct> {
 
   List<String> categoryList = [];
   //List<String> categoryList = ["Phone", "Computer", "Television"];
-  String _value = "", catId = "", totalProduct = "";
+  String _value = "", catId = "", totalProduct = "", base64Image = "";
   File fileImage;
   var catInfoList = [];
 
@@ -80,9 +80,11 @@ class _AddProductState extends State<AddProduct> {
   }
 
   Future<void> addProduct() async {
-    List<int> imageBytes = fileImage.readAsBytesSync();
-    print(imageBytes);
-    String base64Image = base64Encode(imageBytes);
+    if (fileImage != null) {
+      List<int> imageBytes = fileImage.readAsBytesSync();
+      print(imageBytes);
+      base64Image = base64Encode(imageBytes);
+    }
     var bodyData = {
       "product_name": prodnameController.text,
       "cat_id": catId,

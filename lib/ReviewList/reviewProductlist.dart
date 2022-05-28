@@ -141,68 +141,68 @@ class _ReviewProductlistState extends State<ReviewProductlist> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: true,
-                                  builder: (BuildContext context) {
-                                    return Expanded(
-                                      child: AlertDialog(
-                                        title: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text('Reply'),
-                                            Container(
-                                              padding: EdgeInsets.all(5),
-                                              margin: EdgeInsets.only(top: 10),
-                                              decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      width: 0.3,
-                                                      color: Colors.grey),
-                                                  borderRadius:
-                                                      BorderRadius.circular(5)),
-                                              child: TextField(
+                                //showDialog(
+                                  //context: context,
+                                  //barrierDismissible: true,
+                                  //builder: (BuildContext context) {
+                                    //return Expanded(
+                                      //child: AlertDialog(
+                                        //title: Column(
+                                          //crossAxisAlignment:
+                                              //CrossAxisAlignment.start,
+                                          //children: [
+                                            //Text('Reply'),
+                                            //Container(
+                                              //padding: EdgeInsets.all(5),
+                                              //margin: EdgeInsets.only(top: 10),
+                                              //decoration: BoxDecoration(
+                                                  //border: Border.all(
+                                                      //width: 0.3,
+                                                      //color: Colors.grey),
+                                                  //borderRadius:
+                                                      //BorderRadius.circular(5)),
+                                              //child: TextField(
                                                 //controller: categoryController,
-                                                decoration: InputDecoration(
-                                                    hintText: "Enter reply...",
-                                                    border: InputBorder.none),
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                // if (categoryController.text != "") {
-                                                // addCategory(categoryController.text);
-                                                // }
-                                              },
-                                              child: Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  margin: EdgeInsets.only(
-                                                      bottom: 20, top: 10),
-                                                  padding: EdgeInsets.all(10),
-                                                  decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  5.0)),
-                                                      color: mainheader,
-                                                      border: Border.all(
-                                                          width: 0.2,
-                                                          color: Colors.grey)),
-                                                  child: Text(
-                                                    "Submit",
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                    textAlign: TextAlign.center,
-                                                  )),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
+                                                //decoration: InputDecoration(
+                                                    //hintText: "Enter reply...",
+                                                    //border: InputBorder.none),
+                                              //),
+                                            //),
+                                            //GestureDetector(
+                                              //onTap: () {
+                                                //// if (categoryController.text != "") {
+                                                //// addCategory(categoryController.text);
+                                                //// }
+                                              //},
+                                              //child: Container(
+                                                  //width: MediaQuery.of(context)
+                                                      //.size
+                                                      //.width,
+                                                  //margin: EdgeInsets.only(
+                                                      //bottom: 20, top: 10),
+                                                  //padding: EdgeInsets.all(10),
+                                                  //decoration: BoxDecoration(
+                                                      //borderRadius:
+                                                          //BorderRadius.all(
+                                                              //Radius.circular(
+                                                                  //5.0)),
+                                                      //color: mainheader,
+                                                      //border: Border.all(
+                                                          //width: 0.2,
+                                                          //color: Colors.grey)),
+                                                  //child: Text(
+                                                    //"Submit",
+                                                    //style: TextStyle(
+                                                        //color: Colors.white),
+                                                    //textAlign: TextAlign.center,
+                                                  //)),
+                                            //),
+                                          //],
+                                        //),
+                                      //),
+                                    //);
+                                  //},
+                                //);
                               },
                               child: Container(
                                 margin: EdgeInsets.only(right: 10),
