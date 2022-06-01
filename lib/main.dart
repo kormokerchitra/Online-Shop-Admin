@@ -16,7 +16,7 @@ Color golden = Color(0xFFCFB53B);
 bool isLoggedin = false;
 List orderList = [];
 
-String ip = "http://192.168.100.4/";
+String ip = "http://192.168.100.7/";
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.

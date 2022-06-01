@@ -9,7 +9,8 @@ import 'editproduct.dart';
 
 class DetailsPage extends StatefulWidget {
   final product_info;
-  DetailsPage(this.product_info);
+  final bool fromDiscount;
+  DetailsPage(this.product_info, {this.fromDiscount = false});
 
   @override
   State<StatefulWidget> createState() {
@@ -97,6 +98,62 @@ class DetailsPageState extends State<DetailsPage>
     }
   }
 
+  void showDiscountDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Expanded(
+          child: AlertDialog(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Edit discount'),
+                Container(
+                  padding: EdgeInsets.all(5),
+                  margin: EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 0.3, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: TextField(
+                    controller: discPercentController,
+                    decoration: InputDecoration(
+                        hintText: "Enter discount percentage (%)",
+                        border: InputBorder.none),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: (context) =>
+                    //                 EditProduct(prodList[index])),
+                    //       );
+                    editProductDisc(widget.product_info["prod_id"]);
+                  },
+                  child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.only(bottom: 20, top: 10),
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          color: mainheader,
+                          border: Border.all(width: 0.2, color: Colors.grey)),
+                      child: Text(
+                        "Edit",
+                        style: TextStyle(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      )),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var discountAmt2 = discountAmt;
@@ -134,94 +191,91 @@ class DetailsPageState extends State<DetailsPage>
         actions: [
           GestureDetector(
             onTap: () {
-              discPercentController.text = widget.product_info["prod_discount"];
-              discDateController.text = widget.product_info["prod_disc_date"];
-              showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return Expanded(
-                    child: AlertDialog(
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Edit discount'),
-                          Container(
-                            padding: EdgeInsets.all(5),
-                            margin: EdgeInsets.only(top: 10),
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(width: 0.3, color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: TextField(
-                              controller: discPercentController,
-                              decoration: InputDecoration(
-                                  hintText: "Enter discount percentage (%)",
-                                  border: InputBorder.none),
+              if (widget.fromDiscount) {
+                discPercentController.text =
+                    widget.product_info["prod_discount"];
+                discDateController.text = widget.product_info["prod_disc_date"];
+                showDiscountDialog();
+              } else {
+                showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return Expanded(
+                      child: AlertDialog(
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Select option'),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                                showDiscountDialog();
+                              },
+                              child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: EdgeInsets.only(bottom: 5, top: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                      color: mainheader,
+                                      border: Border.all(
+                                          width: 0.2, color: Colors.grey)),
+                                  child: Text(
+                                    "Edit Discount",
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
                             ),
-                          ),
-                          //Container(
-                          //padding: EdgeInsets.all(5),
-                          //margin: EdgeInsets.only(top: 10),
-                          //decoration: BoxDecoration(
-                          //border:
-                          //Border.all(width: 0.3, color: Colors.grey),
-                          //borderRadius: BorderRadius.circular(5)),
-                          //child: TextField(
-                          //controller: discDateController,
-                          //decoration: InputDecoration(
-                          //hintText: "Enter date (yyyy-MM-dd)",
-                          //border: InputBorder.none),
-                          //),
-                          //),
-
-                          //GestureDetector(
-                          //onTap: () {
-                          //if (categoryController.text != "") {
-                          //addProductDisc(categoryController.text);
-                          //}
-                          //},
-                          GestureDetector(
-                            onTap: () {
-                              // Navigator.push(
-                              //         context,
-                              //         MaterialPageRoute(
-                              //             builder: (context) =>
-                              //                 EditProduct(prodList[index])),
-                              //       );
-                              editProductDisc(widget.product_info["prod_id"]);
-                            },
-                            child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                margin: EdgeInsets.only(bottom: 20, top: 10),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5.0)),
-                                    color: mainheader,
-                                    border: Border.all(
-                                        width: 0.2, color: Colors.grey)),
-                                child: Text(
-                                  "Edit",
-                                  style: TextStyle(color: Colors.white),
-                                  textAlign: TextAlign.center,
-                                )),
-                          ),
-                        ],
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          EditProduct((widget.product_info)),
+                                    ));
+                              },
+                              child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: EdgeInsets.only(bottom: 20, top: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(5.0)),
+                                      color: mainheader,
+                                      border: Border.all(
+                                          width: 0.2, color: Colors.grey)),
+                                  child: Text(
+                                    "Edit Product",
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
+                    );
+                  },
+                );
+              }
             },
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Text("Edit Discount",
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: subheader)),
+                child: widget.fromDiscount
+                    ? Text("Edit Discount",
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: subheader))
+                    : Container(
+                        child: Icon(
+                        Icons.more_vert,
+                        color: subheader,
+                      )),
               ),
             ),
           ),
@@ -383,7 +437,7 @@ class DetailsPageState extends State<DetailsPage>
                           ),
                           Text(
                               widget.product_info["prod_quantity"] == "0"
-                                  ? "N/A"
+                                  ? "Out of stock"
                                   : "${widget.product_info["prod_quantity"]}",
                               style: TextStyle(
                                   fontSize: 16, color: Colors.black54))

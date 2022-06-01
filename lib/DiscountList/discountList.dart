@@ -91,8 +91,8 @@ class _DiscountListState extends State<DiscountList> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  DetailsPage(prodList[index])),
+                              builder: (context) => DetailsPage(prodList[index],
+                                  fromDiscount: true)),
                         );
                       },
                       child: Container(

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:online_shopping_admin/ReviewList/reviewProductlist.dart';
 import 'package:online_shopping_admin/UserList/userList.dart';
 import 'package:online_shopping_admin/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,6 +22,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String user_count = "0",
+      product_count = "0",
+      discount_count = "0",
+      category_count = "0",
+      order_count = "0",
+      voucher_count = "0",
+      review_count = "0";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCounter();
+  }
+
   logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
@@ -30,6 +46,26 @@ class _HomePageState extends State<HomePage> {
     isLoggedin = false;
   }
   //String pro_pic = "";
+
+  Future<void> getCounter() async {
+    final response = await http.get(ip + 'easy_shopping/dashboard_counter.php');
+    if (response.statusCode == 200) {
+      print(response.body);
+      var prodBody = json.decode(response.body);
+      print(prodBody["user_count"]);
+      setState(() {
+        user_count = "${prodBody["user_count"]}";
+        product_count = "${prodBody["product_count"]}";
+        discount_count = "${prodBody["discount_count"]}";
+        category_count = "${prodBody["category_count"]}";
+        order_count = "${prodBody["order_count"]}";
+        voucher_count = "${prodBody["voucher_count"]}";
+        review_count = "${prodBody["review_count"]}";
+      });
+    } else {
+      throw Exception('Unable to fetch counter from the REST API');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,12 +205,12 @@ class _HomePageState extends State<HomePage> {
                     margin: EdgeInsets.only(top: 0, left: 20, right: 20),
                     child: Divider()),
                 new ListTile(
-                  leading: new Icon(Icons.security),
-                  title: new Text('Terms and Condition'),
+                  leading: new Icon(Icons.account_box_rounded),
+                  title: new Text('Profile'),
                   onTap: () => {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => UserList()),
+                      MaterialPageRoute(builder: (context) => MyProfilePage()),
                     )
                   },
                 ),
@@ -280,7 +316,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total User ()",
+                        "Total User ($user_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -313,7 +349,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total Category ()",
+                        "Total Category ($category_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -346,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total Products ()",
+                        "Total Products ($product_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -379,7 +415,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total Orders ()",
+                        "Total Orders ($order_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -412,7 +448,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total Discount Products ()",
+                        "Total Discount Products ($discount_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -445,7 +481,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total Voucher/Coupon ()",
+                        "Total Voucher/Coupon ($voucher_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
@@ -478,7 +514,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "Total Review ()",
+                        "Total Review ($review_count)",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),

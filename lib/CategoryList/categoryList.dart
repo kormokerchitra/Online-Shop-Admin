@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:online_shopping_admin/AllProductPage/allProductPage.dart';
+import 'package:online_shopping_admin/ProductList/productList.dart';
 import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
 
@@ -192,7 +193,7 @@ class _CategoryListState extends State<CategoryList> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AllProductPage(
+                        builder: (context) => ProductList(
                               cat_id: categoryList[index]["cat_id"],
                               cat_name: categoryList[index]["cat_name"],
                             )),

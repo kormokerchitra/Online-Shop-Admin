@@ -16,6 +16,8 @@ class MyProfilePage extends StatefulWidget {
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
+  String userID="";
+  var userInfo;
   TextEditingController _fullNameController = TextEditingController();
   //TextEditingController _userNameController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
@@ -28,11 +30,18 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void initState() {
     super.initState();
 
-    // _fullNameController.text = "${userInfo["full_name"]}";
-    // //_userNameController.text = "${userInfo["username"]}";
-    // _addressController.text = "${userInfo["address"]}";
-    // _emailController.text = "${userInfo["email"]}";
-    // _phoneController.text = "${userInfo["phone_num"]}";
+    getUserID();
+  }
+
+  getUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString("userId");
+    userInfo = json.decode(userData);
+    userID = "${userInfo["user_info"]["user_id"]}";
+    _fullNameController.text = "${userInfo["user_info"]["full_name"]}";
+    _addressController.text = "${userInfo["user_info"]["address"]}";
+    _emailController.text = "${userInfo["user_info"]["email"]}";
+    _phoneController.text = "${userInfo["user_info"]["phone_num"]}";
   }
 
   @override
@@ -57,7 +66,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey)),
+                        color: Colors.black54)),
               ],
             ),
           ),
@@ -148,32 +157,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
-                          width: MediaQuery.of(context).size.width,
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                margin: EdgeInsets.only(top: 5, bottom: 5),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Container(
-                                        //color: Colors.grey[200],
-                                        //padding: EdgeInsets.all(20),
-                                        child: Text(
-                                      "Username",
-                                      style: TextStyle(
-                                          color: Colors.black54,
-                                          fontWeight: FontWeight.bold),
-                                    )),
-                                  ],
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                         Container(
@@ -380,7 +363,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            // updatePassword();
+                            updateProfile();
                           },
                           child: Container(
                               width: MediaQuery.of(context).size.width,
@@ -393,10 +376,37 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   border: Border.all(
                                       width: 0.2, color: Colors.grey)),
                               child: Text(
-                                "Change",
+                                "Update",
                                 style: TextStyle(color: Colors.white),
                                 textAlign: TextAlign.center,
                               )),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
+                          width: MediaQuery.of(context).size.width,
+                          child: Column(
+                            children: <Widget>[
+                              Container(
+                                margin: EdgeInsets.only(top: 5, bottom: 5),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Container(
+                                        //color: Colors.grey[200],
+                                        //padding: EdgeInsets.all(20),
+                                        child: Text(
+                                      "Change Password",
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          color: mainheader,
+                                          fontWeight: FontWeight.bold),
+                                    )),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Container(
                           padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
@@ -564,45 +574,30 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   Future<void> updateProfile() async {
-    setState(() {
-      //loader = true;
+    final response = await http.post(ip + 'easy_shopping/user_edit.php', body: {
+      "user_id": "${userInfo["user_info"]["user_id"]}",
+      "image": "",
+      "full_name": _fullNameController.text,
+      "username": "${userInfo["user_info"]["username"]}",
+      "address": _addressController.text,
+      "email": _emailController.text,
+      "phone_num": _phoneController.text,
     });
-    // if (fileImage != null) {
-    //   List<int> imageBytes = fileImage.readAsBytesSync();
-    //   print(imageBytes);
-    //   base64Image = base64Encode(imageBytes);
-    //   print("base64Image upload");
-    //   print(base64Image);
-    // }
+    if (response.statusCode == 200) {
+      print(response.body);
 
-    // print(base64Image);
-    // final response = await http.post(ip + 'easy_shopping/user_edit.php', body: {
-    //   "user_id": "${userInfo["user_id"]}",
-    //   "image": base64Image,
-    //   "full_name": _fullNameController.text,
-    //   "username": _userNameController.text,
-    //   "address": _addressController.text,
-    //   "email": _emailController.text,
-    //   "phone_num": _phoneController.text,
-    // });
-    // if (response.statusCode == 200) {
-    //   print(response.body);
-
-    //   setState(() {
-    //     var user = json.decode(response.body);
-    //     userInfo = user["user_info"];
-    //     storeToLocal(json.encode(userInfo));
-    //     selectedPage = 0;
-    //     isLoggedin = true;
-    //     loader = false;
-    //     userID = "${userInfo["user_id"]}";
-    //     Navigator.pop(context);
-    //     Navigator.push(
-    //         context, MaterialPageRoute(builder: (context) => HomePage()));
-    //   });
-    // } else {
-    //   throw Exception('Unable to update user from the REST API');
-    // }
+      setState(() {
+        var user = json.decode(response.body);
+        userInfo = user["user_info"];
+        storeToLocal(json.encode(user));
+        isLoggedin = true;
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+      });
+    } else {
+      throw Exception('Unable to update user from the REST API');
+    }
   }
 
   Future<void> updatePassword() async {
@@ -611,7 +606,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     } else {
       final response =
           await http.post(ip + 'easy_shopping/user_pass_update.php', body: {
-        //"user_id": "${userInfo["user_id"]}",
+        "user_id": "$userID",
         "password": _passController.text,
       });
       if (response.statusCode == 200) {
@@ -637,7 +632,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   storeToLocal(String user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("user_info", user);
+    prefs.setString("userId", user);
   }
 
   showAlert(String msg) {

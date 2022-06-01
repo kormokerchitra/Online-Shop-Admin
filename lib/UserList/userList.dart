@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:online_shopping_admin/main.dart';
@@ -84,6 +85,7 @@ class _UserListState extends State<UserList> {
           child: Container(
             child: Column(
               children: List.generate(userList.length, (index) {
+                String pro_pic = userList[index]["pro_pic"];
                 return userList[index]["full_name"] == "Admin"
                     ? Container()
                     : Container(
@@ -92,128 +94,205 @@ class _UserListState extends State<UserList> {
                           child: Container(
                             padding: EdgeInsets.all(15),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "${userList[index]["full_name"]}",
-                                        style: TextStyle(fontSize: 17),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 5),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.location_on,
-                                                color: Colors.black38),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                              "${userList[index]["address"]}",
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.black38),
-                                            ),
-                                          ],
+                                pro_pic != ""
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(25),
+                                        child: Container(
+                                          //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                                          padding: EdgeInsets.all(1.0),
+                                          height: 50,
+                                          width: 50,
+                                          child: CachedNetworkImage(
+                                            imageUrl: "${ip + pro_pic}",
+                                            placeholder: (context, url) =>
+                                                CircularProgressIndicator(),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
+                                          ),
+                                          decoration: new BoxDecoration(
+                                              color:
+                                                  Colors.grey, // border color
+                                              shape: BoxShape.circle),
+                                        ),
+                                      )
+                                    : Container(
+                                        //transform: Matrix4.translationValues(0.0, 0.0, 0.0),
+                                        padding: EdgeInsets.all(1.0),
+                                        child: CircleAvatar(
+                                          radius: 25.0,
+                                          backgroundColor: Colors.transparent,
+                                          backgroundImage:
+                                              AssetImage('assets/user.png'),
+                                        ),
+                                        decoration: new BoxDecoration(
+                                          color: Colors.grey, // border color
+                                          shape: BoxShape.circle,
                                         ),
                                       ),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 5),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.email,
-                                                color: Colors.black38),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                              "${userList[index]["email"]}",
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.black38),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(top: 5),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.phone,
-                                                color: Colors.black38),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                              "${userList[index]["phone_num"]}",
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.black38),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                SizedBox(
+                                  width: 15,
                                 ),
-                                GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return Expanded(
-                                            child: AlertDialog(
-                                              title: Text('Delete User'),
-                                              content: Text(
-                                                  'Do you want to delete the user?'),
-                                              actions: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Container(
-                                                        margin: EdgeInsets.only(
-                                                            right: 10,
-                                                            bottom: 10),
-                                                        child: Text('No')),
+                                Flexible(
+                                  child: Container(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text(
+                                                  "${userList[index]["full_name"]}",
+                                                  style:
+                                                      TextStyle(fontSize: 17),
+                                                ),
+                                                Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 5),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.location_on,
+                                                          color:
+                                                              Colors.black38),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Text(
+                                                        "${userList[index]["address"]}",
+                                                        style: TextStyle(
+                                                            fontSize: 15,
+                                                            color:
+                                                                Colors.black38),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.pop(context);
-                                                    deleteUser(userList[index]
-                                                        ["user_id"]);
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Container(
-                                                        margin: EdgeInsets.only(
-                                                            right: 10,
-                                                            bottom: 10),
-                                                        child: Text('Yes')),
+                                                Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 5),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.email,
+                                                          color:
+                                                              Colors.black38),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Text(
+                                                        "${userList[index]["email"]}",
+                                                        style: TextStyle(
+                                                            fontSize: 15,
+                                                            color:
+                                                                Colors.black38),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 5),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.phone,
+                                                          color:
+                                                              Colors.black38),
+                                                      SizedBox(
+                                                        width: 5,
+                                                      ),
+                                                      Text(
+                                                        "${userList[index]["phone_num"]}",
+                                                        style: TextStyle(
+                                                            fontSize: 15,
+                                                            color:
+                                                                Colors.black38),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Icon(Icons.delete,
-                                          color: Colors.redAccent),
-                                    )),
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return Expanded(
+                                                    child: AlertDialog(
+                                                      title:
+                                                          Text('Delete User'),
+                                                      content: Text(
+                                                          'Do you want to delete the user?'),
+                                                      actions: [
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        right:
+                                                                            10,
+                                                                        bottom:
+                                                                            10),
+                                                                child:
+                                                                    Text('No')),
+                                                          ),
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            deleteUser(userList[
+                                                                    index]
+                                                                ["user_id"]);
+                                                          },
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Container(
+                                                                margin: EdgeInsets
+                                                                    .only(
+                                                                        right:
+                                                                            10,
+                                                                        bottom:
+                                                                            10),
+                                                                child: Text(
+                                                                    'Yes')),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Icon(Icons.delete,
+                                                  color: Colors.redAccent),
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+                                )
                               ],
                             ),
                           ),

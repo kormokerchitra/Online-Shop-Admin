@@ -1,48 +1,57 @@
 import 'dart:convert';
-
+import 'dart:ui' as prefix0;
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:online_shopping_admin/ProductList/addProduct.dart';
-import 'package:online_shopping_admin/ProductList/productDetails.dart';
-import 'package:online_shopping_admin/SearchPage/searchPage.dart';
-import 'package:online_shopping_admin/Utils/utils.dart';
-import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:online_shopping_admin/ProductList/editproduct.dart';
+import 'package:online_shopping_admin/ProductList/productDetails.dart';
+import 'package:online_shopping_admin/Utils/utils.dart';
+import 'dart:async';
+import '../../../main.dart';
 
-import 'editproduct.dart';
-
-class ProductList extends StatefulWidget {
-  final String cat_id;
-  final String cat_name;
-  ProductList({this.cat_id, this.cat_name});
-
+class SearchPage extends StatefulWidget {
   @override
-  _ProductListState createState() => _ProductListState();
+  State<StatefulWidget> createState() {
+    return SearchPageState();
+  }
 }
 
-class _ProductListState extends State<ProductList> {
+class SearchPageState extends State<SearchPage>
+    with SingleTickerProviderStateMixin {
+  Animation<double> animation;
+  AnimationController controller;
+  String result = '';
+  TextEditingController searchController = TextEditingController();
+  var productBody;
   var prodList = [];
-  TextEditingController productController = new TextEditingController();
-  TextEditingController productEditController = new TextEditingController();
-
+  bool isLoading = false;
   int discountPercent = 0, discountAmt = 0;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    fetchProduct();
   }
 
-  Future<void> fetchProduct() async {
-    final response = await http.get(ip + 'easy_shopping/product_list.php');
+  Future<void> fetchProduct(String name) async {
+    final response = await http.post(ip + 'easy_shopping/product_search.php',
+        body: {"product_name": "$name"});
+    print(name);
     if (response.statusCode == 200) {
       print(response.body);
-      var prodBody = json.decode(response.body);
-      print(prodBody["product_list"]);
+      productBody = json.decode(response.body);
+      print(productBody["product_list"]);
       setState(() {
-        prodList = prodBody["product_list"];
+        prodList = [];
+        int cc = productBody["product_list"].length;
+        print("cc");
+        print(cc);
+        for (int i = 0; i < cc; i++) {
+          prodList.add(productBody["product_list"][i]);
+        }
+        isLoading = false;
       });
+      print("prodList.length");
       print(prodList.length);
     } else {
       throw Exception('Unable to fetch products from the REST API');
@@ -59,29 +68,12 @@ class _ProductListState extends State<ProductList> {
     print(response.statusCode);
     if (response.statusCode == 200) {
       if (response.body == "Success") {
-        fetchProduct();
+        fetchProduct(result);
       }
     } else {
       throw Exception('Unable to delete product from the REST API');
     }
   }
-
-  //Future<void> editProduct(String name, String prod_id) async {
-  //final response =
-  //await http.post(ip + 'easy_shopping/product_edit.php', body: {
-  //"product_name": name,
-  //"prod_id": prod_id,
-  //});
-  //print("name - " + name);
-  //print(response.statusCode);
-  //if (response.statusCode == 200) {
-  //Navigator.pop(context);
-  //productEditController.clear();
-  //fetchProduct();
-  //} else {
-  //throw Exception('Unable to edit product from the REST API');
-  //}
-  //}
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +94,7 @@ class _ProductListState extends State<ProductList> {
               children: <Widget>[
                 Flexible(
                   child: Container(
-                    child: Text(
-                        widget.cat_name != null
-                            ? "${widget.cat_name}"
-                            : "Product List",
+                    child: Text("Product Search",
                         style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
@@ -116,62 +105,95 @@ class _ProductListState extends State<ProductList> {
             ),
           ),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SearchPage()),
-              );
-            },
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Icon(
-                  Icons.search,
-                  color: subheader,
-                  size: 30,
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddProduct()),
-              );
-            },
-            child: Container(
-              margin: EdgeInsets.only(right: 10),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Icon(
-                  Icons.add,
-                  color: subheader,
-                  size: 30,
-                ),
-              ),
-            ),
-          )
-        ],
       ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
+      body: SafeArea(
         child: Container(
-          child: Column(
-            children: List.generate(prodList.length, (index) {
-              String img = prodList[index]["product_img"];
-              print("pic - ${ip + img}");
-              discountAmt = Utils().getProductDiscount(
-                  prodList[index]["product_price"],
-                  prodList[index]["prod_discount"]);
-              return widget.cat_id != null
-                  ? prodList[index]["cat_id"] == widget.cat_id
-                      ? bodydata(index, img)
-                      : Container()
-                  : bodydata(index, img);
-            }),
+          color: sub_white,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            margin: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 1),
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                color: Colors.white,
+                border: Border.all(width: 0, color: Colors.grey)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      color: Colors.white,
+                      border: Border.all(width: 0.5, color: Colors.grey)),
+                  child: TextField(
+                    controller: searchController,
+                    autofocus: false,
+                    decoration: InputDecoration(
+                      icon: const Icon(
+                        Icons.search,
+                        color: Colors.black38,
+                      ),
+                      hintText: 'Search here...',
+                      contentPadding:
+                          EdgeInsets.fromLTRB(0.0, 10.0, 20.0, 10.0),
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (val) {
+                      if (val != "") {
+                        setState(() {
+                          isLoading = true;
+                          result = val;
+                        });
+                        fetchProduct(result);
+                      }
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                prodList.length == 0
+                    ? Container()
+                    : Container(
+                        width: MediaQuery.of(context).size.width,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "${prodList.length} items found",
+                          style: TextStyle(color: mainheader),
+                        ),
+                      ),
+                prodList.length == 0
+                    ? Container()
+                    : SizedBox(
+                        height: 10,
+                      ),
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : prodList.length == 0
+                        ? Center(
+                            child: Container(
+                              child: Text("No items found!"),
+                            ),
+                          )
+                        : Flexible(
+                            child: SingleChildScrollView(
+                              child: Container(
+                                child: Column(
+                                    children:
+                                        List.generate(prodList.length, (index) {
+                                  String img = prodList[index]["product_img"];
+                                  print("pic - ${ip + img}");
+                                  discountAmt = Utils().getProductDiscount(
+                                      prodList[index]["product_price"],
+                                      prodList[index]["prod_discount"]);
+                                  return bodydata(index, img);
+                                })),
+                              ),
+                            ),
+                          )
+              ],
+            ),
           ),
         ),
       ),
