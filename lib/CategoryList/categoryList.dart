@@ -127,6 +127,20 @@ class _CategoryListState extends State<CategoryList> {
                         children: [
                           Text('Add Category'),
                           Container(
+                            margin: EdgeInsets.only(top: 20),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Category Name",
+                                  style: TextStyle(color: Colors.black54, fontSize: 13),
+                                ),
+                                Text(
+                                  " *",
+                                  style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                ),
+                              ],
+                            )),
+                          Container(
                             padding: EdgeInsets.all(5),
                             margin: EdgeInsets.only(top: 10),
                             decoration: BoxDecoration(
@@ -275,6 +289,20 @@ class _CategoryListState extends State<CategoryList> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text('Edit Category'),
+                                                Container(
+                                                  margin: EdgeInsets.only(top: 20),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "Category Name",
+                                                        style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                      ),
+                                                      Text(
+                                                        " *",
+                                                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                      ),
+                                                    ],
+                                                  )),
                                                 Container(
                                                   padding: EdgeInsets.all(5),
                                                   margin:

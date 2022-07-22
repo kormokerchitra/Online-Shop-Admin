@@ -235,7 +235,7 @@ class _ProductListState extends State<ProductList> {
                                   Container(
                                     margin: EdgeInsets.only(left: 3),
                                     child: Text(
-                                      "${prodList[index]["prod_rating"]}",
+                                      "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                   )

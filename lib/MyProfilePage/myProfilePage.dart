@@ -16,8 +16,9 @@ class MyProfilePage extends StatefulWidget {
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
-  String userID="";
+  String userID = "";
   var userInfo;
+  bool loader = false;
   TextEditingController _fullNameController = TextEditingController();
   //TextEditingController _userNameController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
@@ -363,7 +364,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            updateProfile();
+                            !loader ? updateProfile() : null;
                           },
                           child: Container(
                               width: MediaQuery.of(context).size.width,
@@ -375,11 +376,17 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   color: mainheader,
                                   border: Border.all(
                                       width: 0.2, color: Colors.grey)),
-                              child: Text(
-                                "Update",
-                                style: TextStyle(color: Colors.white),
-                                textAlign: TextAlign.center,
-                              )),
+                              child: loader
+                                  ? Center(
+                                      child: CircularProgressIndicator(
+                                        color: white,
+                                      ),
+                                    )
+                                  : Text(
+                                      "Update",
+                                      style: TextStyle(color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    )),
                         ),
                         Container(
                           padding: EdgeInsets.only(top: 5, right: 5, bottom: 5),
@@ -423,7 +430,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                         //color: Colors.grey[200],
                                         //padding: EdgeInsets.all(20),
                                         child: Text(
-                                      "Update Password",
+                                      "New Password",
                                       style: TextStyle(
                                           color: Colors.black54,
                                           fontWeight: FontWeight.bold),
@@ -574,34 +581,55 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   Future<void> updateProfile() async {
-    final response = await http.post(ip + 'easy_shopping/user_edit.php', body: {
-      "user_id": "${userInfo["user_info"]["user_id"]}",
-      "image": "",
-      "full_name": _fullNameController.text,
-      "username": "${userInfo["user_info"]["username"]}",
-      "address": _addressController.text,
-      "email": _emailController.text,
-      "phone_num": _phoneController.text,
-    });
-    if (response.statusCode == 200) {
-      print(response.body);
-
-      setState(() {
-        var user = json.decode(response.body);
-        userInfo = user["user_info"];
-        storeToLocal(json.encode(user));
-        isLoggedin = true;
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
-      });
+    bool emailValid =
+        RegExp(r"^[a-zA-Z.a-zA-Z.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(_emailController.text);
+    if (!emailValid) {
+      showAlert("Invalid email");
+    }  else if (!_phoneController.text.isEmpty &&
+        _phoneController.text.length < 11) {
+      showAlert("Invalid phone number");
     } else {
-      throw Exception('Unable to update user from the REST API');
+      setState(() {
+        loader = true;
+      });
+      final response =
+          await http.post(ip + 'easy_shopping/user_edit.php', body: {
+        "user_id": "${userInfo["user_info"]["user_id"]}",
+        "image": "",
+        "full_name": _fullNameController.text,
+        "username": "${userInfo["user_info"]["username"]}",
+        "address": _addressController.text,
+        "email": _emailController.text,
+        "phone_num": _phoneController.text,
+      });
+      if (response.statusCode == 200) {
+        print(response.body);
+
+        setState(() {
+          var user = json.decode(response.body);
+          userInfo = user["user_info"];
+          storeToLocal(json.encode(user));
+          isLoggedin = true;
+          loader = false;
+          Navigator.pop(context);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => HomePage()));
+        });
+      } else {
+        throw Exception('Unable to update user from the REST API');
+      }
     }
   }
 
   Future<void> updatePassword() async {
-    if (_passController.text != _conPassController.text) {
+    if (_passController.text.isEmpty) {
+      showAlert("New password field is blank");
+    } else if (_conPassController.text.isEmpty) {
+      showAlert("Confirm password field is blank");
+    } else if (_passController.text.length < 8 && _conPassController.text.length < 8) {
+      showAlert("Password must be at least 8 characters");
+    } else if (_passController.text != _conPassController.text) {
       showAlert("Password doesn't match");
     } else {
       final response =

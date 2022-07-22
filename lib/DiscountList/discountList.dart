@@ -8,6 +8,8 @@ import 'package:online_shopping_admin/main.dart';
 import 'package:http/http.dart' as http;
 
 class DiscountList extends StatefulWidget {
+  final product_id;
+  DiscountList({this.product_id = ""});
   @override
   _DiscountListState createState() => _DiscountListState();
 }
@@ -36,6 +38,20 @@ class _DiscountListState extends State<DiscountList> {
         prodList = prodBody["product_list"];
       });
       print(prodList.length);
+
+      if (widget.product_id != "") {
+        for (int i = 0; i < prodList.length; i++) {
+          if (widget.product_id == prodList[i]["prod_id"]) {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      DetailsPage(prodList[i], fromDiscount: true)),
+            );
+          }
+        }
+      }
     } else {
       throw Exception('Unable to fetch products from the REST API');
     }
@@ -274,6 +290,27 @@ class _DiscountListState extends State<DiscountList> {
                                                 children: [
                                                   Text('Edit discount'),
                                                   Container(
+                                                      margin: EdgeInsets.only(
+                                                          top: 20),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            "Product Discount (%)",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black54,
+                                                                fontSize: 13),
+                                                          ),
+                                                          Text(
+                                                            " *",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .redAccent,
+                                                                fontSize: 15),
+                                                          ),
+                                                        ],
+                                                      )),
+                                                  Container(
                                                     padding: EdgeInsets.all(5),
                                                     margin: EdgeInsets.only(
                                                         top: 10),
@@ -317,9 +354,13 @@ class _DiscountListState extends State<DiscountList> {
                                                   //),
                                                   GestureDetector(
                                                     onTap: () {
-                                                      editProductDisc(
-                                                          prodList[index]
-                                                              ["prod_id"]);
+                                                      if (discPercentController
+                                                              .text !=
+                                                          "") {
+                                                        editProductDisc(
+                                                            prodList[index]
+                                                                ["prod_id"]);
+                                                      }
                                                     },
                                                     child: Container(
                                                         width: MediaQuery.of(

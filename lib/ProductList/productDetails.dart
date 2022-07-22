@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:online_shopping_admin/DiscountList/discountList.dart';
 import 'package:online_shopping_admin/LoginPage/loginPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:online_shopping_admin/Utils/utils.dart';
@@ -81,20 +82,45 @@ class DetailsPageState extends State<DetailsPage>
     }
   }
 
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
   Future<void> editProductDisc(String prod_id) async {
-    final response =
-        await http.post(ip + 'easy_shopping/product_status_edit.php', body: {
-      "prod_discount": discPercentController.text,
-      "prod_disc_date": discDateController.text,
-      "prod_id": prod_id,
-    });
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-      discPercentController.clear();
-      discDateController.clear();
+    if (discPercentController.text.isEmpty) {
+      showAlert("Product discount field is blank");
     } else {
-      throw Exception('Unable to edit caegory from the REST API');
+      final response =
+          await http.post(ip + 'easy_shopping/product_status_edit.php', body: {
+        "prod_discount": discPercentController.text,
+        "prod_disc_date": discDateController.text,
+        "prod_id": prod_id,
+      });
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DiscountList(
+                      product_id: widget.product_info["prod_id"],
+                    )));
+        discPercentController.clear();
+        discDateController.clear();
+      } else {
+        throw Exception('Unable to edit caegory from the REST API');
+      }
     }
   }
 
@@ -109,6 +135,21 @@ class DetailsPageState extends State<DetailsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Edit discount'),
+                Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: Row(
+                      children: [
+                        Text(
+                          "Product Discount (%)",
+                          style: TextStyle(color: Colors.black54, fontSize: 13),
+                        ),
+                        Text(
+                          " *",
+                          style:
+                              TextStyle(color: Colors.redAccent, fontSize: 15),
+                        ),
+                      ],
+                    )),
                 Container(
                   padding: EdgeInsets.all(5),
                   margin: EdgeInsets.only(top: 10),
@@ -195,6 +236,8 @@ class DetailsPageState extends State<DetailsPage>
                 discPercentController.text =
                     widget.product_info["prod_discount"];
                 discDateController.text = widget.product_info["prod_disc_date"];
+
+                print(widget.product_info["prod_discount"]);
                 showDiscountDialog();
               } else {
                 showDialog(
@@ -210,6 +253,12 @@ class DetailsPageState extends State<DetailsPage>
                             GestureDetector(
                               onTap: () {
                                 Navigator.pop(context);
+                                discPercentController.text =
+                                    widget.product_info["prod_discount"];
+                                discDateController.text =
+                                    widget.product_info["prod_disc_date"];
+
+                                print(widget.product_info["prod_discount"]);
                                 showDiscountDialog();
                               },
                               child: Container(
@@ -525,7 +574,8 @@ class DetailsPageState extends State<DetailsPage>
                                 Container(
                                   margin: EdgeInsets.only(left: 3),
                                   child: Text(
-                                    widget.product_info["prod_rating"],
+                                    "${widget.product_info["prod_rating"]} (${widget.product_info["rev_count"]})",
+                                    //widget.product_info["prod_rating"],
                                     style: TextStyle(color: Colors.grey),
                                   ),
                                 )

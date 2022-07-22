@@ -79,56 +79,86 @@ class _AddProductState extends State<AddProduct> {
     }
   }
 
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
   Future<void> addProduct() async {
-    if (fileImage != null) {
-      List<int> imageBytes = fileImage.readAsBytesSync();
-      print(imageBytes);
-      base64Image = base64Encode(imageBytes);
-    }
-    var bodyData = {
-      "product_name": prodnameController.text,
-      "cat_id": catId,
-      "product_img": base64Image,
-      "product_code": prodcodeController.text,
-      "product_price": prodpriceController.text,
-      "prod_discount": proddiscController.text,
-      "prod_disc_date": proddiscdateController.text,
-      "prod_description": proddesController.text,
-      "prod_dimension": proddimController.text,
-      "product_size": prodsizeController.text,
-      "shipping_weight": prodshipController.text,
-      "manuf_name": prodmanufController.text,
-      "prod_serial_num": prodsernumController.text,
-      "stock": prodstockController.text,
-    };
-    print(bodyData);
-
-    final response =
-        await http.post(ip + 'easy_shopping/product_add.php', body: bodyData);
-
-    print(response.statusCode);
-    print("response.body");
-    print(response.body);
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-      prodnameController.clear();
-      prodcodeController.clear();
-      prodpriceController.clear();
-      proddesController.clear();
-      proddiscController.clear();
-      proddiscdateController.clear();
-      proddimController.clear();
-      prodsizeController.clear();
-      prodshipController.clear();
-      prodmanufController.clear();
-      prodsernumController.clear();
-      prodstockController.clear();
-      editCategoryProductCount();
-      Navigator.pop(context);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => ProductList()));
+    if (prodnameController.text.isEmpty) {
+      showAlert("Product name field is blank");
+    } else if (prodcodeController.text.isEmpty) {
+      showAlert("Product code field is blank");
+    } else if (prodpriceController.text.isEmpty) {
+      showAlert("Product price field is blank");
+    } else if (proddiscController.text.isEmpty) {
+      showAlert("Product discount field is blank");
+    } else if (prodmanufController.text.isEmpty) {
+      showAlert("Manufacturer name field is blank");
+    } else if (prodsernumController.text.isEmpty) {
+      showAlert("Product serial number field is blank");
+    } else if (prodstockController.text.isEmpty) {
+      showAlert("Product stock field is blank");
     } else {
-      throw Exception('Unable to add product from the REST API');
+      if (fileImage != null) {
+        List<int> imageBytes = fileImage.readAsBytesSync();
+        print(imageBytes);
+        base64Image = base64Encode(imageBytes);
+      }
+      var bodyData = {
+        "product_name": prodnameController.text,
+        "cat_id": catId,
+        "product_img": base64Image,
+        "product_code": prodcodeController.text,
+        "product_price": prodpriceController.text,
+        "prod_discount": proddiscController.text,
+        "prod_disc_date": proddiscdateController.text,
+        "prod_description": proddesController.text,
+        "prod_dimension": proddimController.text,
+        "product_size": prodsizeController.text,
+        "shipping_weight": prodshipController.text,
+        "manuf_name": prodmanufController.text,
+        "prod_serial_num": prodsernumController.text,
+        "stock": prodstockController.text,
+      };
+      print(bodyData);
+
+      final response =
+          await http.post(ip + 'easy_shopping/product_add.php', body: bodyData);
+
+      print(response.statusCode);
+      print("response.body");
+      print(response.body);
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        prodnameController.clear();
+        prodcodeController.clear();
+        prodpriceController.clear();
+        proddesController.clear();
+        proddiscController.clear();
+        proddiscdateController.clear();
+        proddimController.clear();
+        prodsizeController.clear();
+        prodshipController.clear();
+        prodmanufController.clear();
+        prodsernumController.clear();
+        prodstockController.clear();
+        editCategoryProductCount();
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ProductList()));
+      } else {
+        throw Exception('Unable to add product from the REST API');
+      }
     }
   }
 
@@ -190,9 +220,39 @@ class _AddProductState extends State<AddProduct> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Select Category",
-                style: TextStyle(color: subheader, fontSize: 12),
+              Row(
+                children: [
+                  Text(
+                    "Here ",
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                  Text(
+                    "*",
+                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                  ),
+                  Text(
+                    " marked fields are mandatory.",
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                ],
+              ),
+              Container(
+                  width: MediaQuery.of(context).size.width - 140,
+                  child: Divider()),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  Text(
+                    "Select Category",
+                    style: TextStyle(color: subheader, fontSize: 12),
+                  ),
+                  Text(
+                    " *",
+                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                  ),
+                ],
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
@@ -234,9 +294,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Name",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Name",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -252,9 +320,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Code",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Code",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -270,9 +346,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Price",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Price",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -308,9 +392,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Discount",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Discount",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -402,9 +494,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Manufacturer Name",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Manufacturer Name",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -421,9 +521,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Serial Number",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Serial Number",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -440,9 +548,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Stock",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Stock",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),

@@ -15,4 +15,12 @@ class Utils {
 
     return discountAmt;
   }
+
+  static List statusList = [
+    "Processing",
+    "Picked",
+    "Shipped",
+    "Delivered",
+    "Cancelled"
+  ];
 }

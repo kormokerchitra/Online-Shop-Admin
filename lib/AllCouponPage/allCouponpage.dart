@@ -70,57 +70,120 @@ class _AllCouponPageState extends State<AllCouponPage> {
     }
   }
 
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
   Future<void> addCoupon() async {
-    final response =
-        await http.post(ip + 'easy_shopping/voucher_add.php', body: {
-      "vou_name": vNameController.text,
-      "vou_amount": vAmtController.text,
-      "vou_exp_date": vDateController.text
-    });
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-      vNameController.clear();
-      vAmtController.clear();
-      vDateController.clear();
-      fetchCoupon();
+    if (vNameController.text.isEmpty) {
+      showAlert("Voucher/coupon name field is blank");
+    } else if (vAmtController.text.isEmpty) {
+      showAlert("Voucher/coupon amount field is blank");
+    } else if (vDateController.text.isEmpty) {
+      showAlert("Voucher/coupon expire date field is blank");
     } else {
-      throw Exception('Unable to add caegory from the REST API');
+      final response =
+          await http.post(ip + 'easy_shopping/voucher_add.php', body: {
+        "vou_name": vNameController.text,
+        "vou_amount": vAmtController.text,
+        "vou_exp_date": vDateController.text
+      });
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        vNameController.clear();
+        vAmtController.clear();
+        vDateController.clear();
+        fetchCoupon();
+      } else {
+        throw Exception('Unable to add caegory from the REST API');
+      }
     }
   }
 
   Future<void> editCoupon(String vou_id) async {
-    setState(() {
-      isEditLoading = true;
-    });
-    print(json.encode({
-      "vou_name": vNameController1.text,
-      "vou_amount": vAmtController1.text,
-      "vou_exp_date": vDateController1.text,
-      "vou_status": vStatusController1.text,
-      "vou_id": vou_id,
-    }));
-    final response =
-        await http.post(ip + 'easy_shopping/voucher_edit.php', body: {
-      "vou_name": vNameController1.text,
-      "vou_amount": vAmtController1.text,
-      "vou_exp_date": vDateController1.text,
-      "vou_status": vStatusController1.text,
-      "vou_id": vou_id,
-    });
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      setState(() {
-        vNameController1.clear();
-        vAmtController1.clear();
-        vDateController1.clear();
-        vStatusController1.clear();
-        isEditLoading = false;
-      });
-      fetchCoupon();
+    if (vNameController1.text.isEmpty) {
+      showAlert("Voucher/coupon name field is blank");
+    } else if (vAmtController1.text.isEmpty) {
+      showAlert("Voucher/coupon amount field is blank");
+    } else if (vDateController1.text.isEmpty) {
+      showAlert("Voucher/coupon expire date field is blank");
+    } else if (vStatusController1.text.isEmpty) {
+      showAlert("Voucher/coupon status field is blank");
     } else {
-      throw Exception('Unable to edit voucher from the REST API');
+      setState(() {
+        isEditLoading = true;
+      });
+      print(json.encode({
+        "vou_name": vNameController1.text,
+        "vou_amount": vAmtController1.text,
+        "vou_exp_date": vDateController1.text,
+        "vou_status": vStatusController1.text,
+        "vou_id": vou_id,
+      }));
+      final response =
+          await http.post(ip + 'easy_shopping/voucher_edit.php', body: {
+        "vou_name": vNameController1.text,
+        "vou_amount": vAmtController1.text,
+        "vou_exp_date": vDateController1.text,
+        "vou_status": vStatusController1.text,
+        "vou_id": vou_id,
+      });
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        setState(() {
+          vNameController1.clear();
+          vAmtController1.clear();
+          vDateController1.clear();
+          vStatusController1.clear();
+          isEditLoading = false;
+        });
+        fetchCoupon();
+      } else {
+        throw Exception('Unable to edit voucher from the REST API');
+      }
     }
+    // setState(() {
+    //   isEditLoading = true;
+    // });
+    // print(json.encode({
+    //   "vou_name": vNameController1.text,
+    //   "vou_amount": vAmtController1.text,
+    //   "vou_exp_date": vDateController1.text,
+    //   "vou_status": vStatusController1.text,
+    //   "vou_id": vou_id,
+    // }));
+    // final response =
+    //     await http.post(ip + 'easy_shopping/voucher_edit.php', body: {
+    //   "vou_name": vNameController1.text,
+    //   "vou_amount": vAmtController1.text,
+    //   "vou_exp_date": vDateController1.text,
+    //   "vou_status": vStatusController1.text,
+    //   "vou_id": vou_id,
+    // });
+    // print(response.statusCode);
+    // if (response.statusCode == 200) {
+    //   setState(() {
+    //     vNameController1.clear();
+    //     vAmtController1.clear();
+    //     vDateController1.clear();
+    //     vStatusController1.clear();
+    //     isEditLoading = false;
+    //   });
+    //   fetchCoupon();
+    // } else {
+    //   throw Exception('Unable to edit voucher from the REST API');
+    // }
   }
 
   Future<void> deleteCoupon(String vou_id) async {
@@ -174,12 +237,28 @@ class _AllCouponPageState extends State<AllCouponPage> {
                 context: context,
                 barrierDismissible: true,
                 builder: (BuildContext context) {
-                  return Expanded(
-                    child: AlertDialog(
-                      title: Column(
+                  return AlertDialog(
+                    content: SingleChildScrollView(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Add Voucher/Coupon'),
+                          Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Voucher/Coupon Name",
+                                    style: TextStyle(
+                                        color: Colors.black54, fontSize: 13),
+                                  ),
+                                  Text(
+                                    " *",
+                                    style: TextStyle(
+                                        color: Colors.redAccent, fontSize: 15),
+                                  ),
+                                ],
+                              )),
                           Container(
                             padding: EdgeInsets.all(5),
                             margin: EdgeInsets.only(top: 10),
@@ -195,6 +274,22 @@ class _AllCouponPageState extends State<AllCouponPage> {
                             ),
                           ),
                           Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Voucher/Coupon Amount",
+                                    style: TextStyle(
+                                        color: Colors.black54, fontSize: 13),
+                                  ),
+                                  Text(
+                                    " *",
+                                    style: TextStyle(
+                                        color: Colors.redAccent, fontSize: 15),
+                                  ),
+                                ],
+                              )),
+                          Container(
                             padding: EdgeInsets.all(5),
                             margin: EdgeInsets.only(top: 10),
                             decoration: BoxDecoration(
@@ -204,10 +299,26 @@ class _AllCouponPageState extends State<AllCouponPage> {
                             child: TextField(
                               controller: vAmtController,
                               decoration: InputDecoration(
-                                  hintText: "Enter amount",
+                                  hintText: "Enter voucher/coupon amount",
                                   border: InputBorder.none),
                             ),
                           ),
+                          Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Voucher/Coupon Expire Date",
+                                    style: TextStyle(
+                                        color: Colors.black54, fontSize: 13),
+                                  ),
+                                  Text(
+                                    " *",
+                                    style: TextStyle(
+                                        color: Colors.redAccent, fontSize: 15),
+                                  ),
+                                ],
+                              )),
                           Container(
                             padding: EdgeInsets.all(5),
                             margin: EdgeInsets.only(top: 10),
@@ -218,7 +329,7 @@ class _AllCouponPageState extends State<AllCouponPage> {
                             child: TextField(
                               controller: vDateController,
                               decoration: InputDecoration(
-                                  hintText: "Enter expiry date (yyyy-MM-dd)",
+                                  hintText: "Enter expire date (yyyy-mm-dd)",
                                   border: InputBorder.none),
                             ),
                           ),
@@ -470,6 +581,20 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                           Text(
                                                                               'Edit Voucher/Coupon'),
                                                                           Container(
+                                                                              margin: EdgeInsets.only(top: 20),
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Text(
+                                                                                    "Voucher/Coupon Name",
+                                                                                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    " *",
+                                                                                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                                  ),
+                                                                                ],
+                                                                              )),
+                                                                          Container(
                                                                             padding:
                                                                                 EdgeInsets.all(5),
                                                                             margin:
@@ -482,6 +607,20 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                               decoration: InputDecoration(hintText: "Enter voucher/coupon name", border: InputBorder.none),
                                                                             ),
                                                                           ),
+                                                                          Container(
+                                                                              margin: EdgeInsets.only(top: 20),
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Text(
+                                                                                    "Voucher/Coupon Amount",
+                                                                                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    " *",
+                                                                                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                                  ),
+                                                                                ],
+                                                                              )),
                                                                           Container(
                                                                             padding:
                                                                                 EdgeInsets.all(5),
@@ -496,6 +635,20 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                             ),
                                                                           ),
                                                                           Container(
+                                                                              margin: EdgeInsets.only(top: 20),
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Text(
+                                                                                    "Voucher/Coupon Expire Date",
+                                                                                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    " *",
+                                                                                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                                  ),
+                                                                                ],
+                                                                              )),
+                                                                          Container(
                                                                             padding:
                                                                                 EdgeInsets.all(5),
                                                                             margin:
@@ -508,6 +661,20 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                               decoration: InputDecoration(hintText: "Enter expiry date (yyyy-MM-dd)", border: InputBorder.none),
                                                                             ),
                                                                           ),
+                                                                          Container(
+                                                                              margin: EdgeInsets.only(top: 20),
+                                                                              child: Row(
+                                                                                children: [
+                                                                                  Text(
+                                                                                    "Voucher/Coupon Status",
+                                                                                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    " *",
+                                                                                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                                  ),
+                                                                                ],
+                                                                              )),
                                                                           Container(
                                                                             padding:
                                                                                 EdgeInsets.all(5),
@@ -543,7 +710,6 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                           GestureDetector(
                                                                             onTap:
                                                                                 () {
-                                                                              Navigator.pop(context);
                                                                               editCoupon(couponListActive[index]["vou_id"]);
                                                                             },
                                                                             child: Container(
@@ -774,6 +940,23 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                     Text(
                                                                         'Edit Voucher/Coupon'),
                                                                     Container(
+                                                                        margin: EdgeInsets.only(
+                                                                            top:
+                                                                                20),
+                                                                        child:
+                                                                            Row(
+                                                                          children: [
+                                                                            Text(
+                                                                              "Voucher/Coupon Name",
+                                                                              style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                            ),
+                                                                            Text(
+                                                                              " *",
+                                                                              style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                            ),
+                                                                          ],
+                                                                        )),
+                                                                    Container(
                                                                       padding:
                                                                           EdgeInsets.all(
                                                                               5),
@@ -796,6 +979,23 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                                 InputBorder.none),
                                                                       ),
                                                                     ),
+                                                                    Container(
+                                                                        margin: EdgeInsets.only(
+                                                                            top:
+                                                                                20),
+                                                                        child:
+                                                                            Row(
+                                                                          children: [
+                                                                            Text(
+                                                                              "Voucher/Coupon Amount",
+                                                                              style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                            ),
+                                                                            Text(
+                                                                              " *",
+                                                                              style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                            ),
+                                                                          ],
+                                                                        )),
                                                                     Container(
                                                                       padding:
                                                                           EdgeInsets.all(
@@ -820,6 +1020,23 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                       ),
                                                                     ),
                                                                     Container(
+                                                                        margin: EdgeInsets.only(
+                                                                            top:
+                                                                                20),
+                                                                        child:
+                                                                            Row(
+                                                                          children: [
+                                                                            Text(
+                                                                              "Voucher/Coupon Expire Date",
+                                                                              style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                            ),
+                                                                            Text(
+                                                                              " *",
+                                                                              style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                            ),
+                                                                          ],
+                                                                        )),
+                                                                    Container(
                                                                       padding:
                                                                           EdgeInsets.all(
                                                                               5),
@@ -837,11 +1054,28 @@ class _AllCouponPageState extends State<AllCouponPage> {
                                                                             vDateController1,
                                                                         decoration: InputDecoration(
                                                                             hintText:
-                                                                                "Enter expiry date (yyyy-MM-dd)",
+                                                                                "Enter expiry date (yyyy-mm-dd)",
                                                                             border:
                                                                                 InputBorder.none),
                                                                       ),
                                                                     ),
+                                                                    Container(
+                                                                        margin: EdgeInsets.only(
+                                                                            top:
+                                                                                20),
+                                                                        child:
+                                                                            Row(
+                                                                          children: [
+                                                                            Text(
+                                                                              "Voucher/Coupon Status",
+                                                                              style: TextStyle(color: Colors.black54, fontSize: 13),
+                                                                            ),
+                                                                            Text(
+                                                                              " *",
+                                                                              style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                                                                            ),
+                                                                          ],
+                                                                        )),
                                                                     Container(
                                                                       padding:
                                                                           EdgeInsets.all(

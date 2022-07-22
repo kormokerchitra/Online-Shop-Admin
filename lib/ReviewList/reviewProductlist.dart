@@ -128,7 +128,7 @@ class _ReviewProductlistState extends State<ReviewProductlist> {
                                           width: 5,
                                         ),
                                         Text(
-                                          "${prodList[index]["prod_rating"]}",
+                                          "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
                                           style: TextStyle(
                                               fontSize: 15,
                                               color: Colors.black38),

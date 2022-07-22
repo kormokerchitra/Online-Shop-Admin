@@ -60,6 +60,20 @@ class _EditProductState extends State<EditProduct> {
     });
   }
 
+  showAlert(String msg) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(msg,
+              style: TextStyle(
+                  color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        );
+      },
+    );
+  }
+
   Future<void> fetchCategory() async {
     final response = await http.get(ip + 'easy_shopping/category_list.php');
     if (response.statusCode == 200) {
@@ -89,49 +103,63 @@ class _EditProductState extends State<EditProduct> {
   }
 
   Future<void> editProduct() async {
-    if (fileImage != null) {
-      List<int> imageBytes = fileImage.readAsBytesSync();
-      print(imageBytes);
-      base64Image = base64Encode(imageBytes);
-    }
-    var bodyData = {
-      "product_name": prodnameEditController.text,
-      "product_code": prodcodeEditController.text,
-      "product_price": prodpriceEditController.text,
-      "prod_description": proddesEditController.text,
-      "prod_dimension": proddimEditController.text,
-      "product_size": prodsizeEditController.text,
-      "shipping_weight": prodshipEditController.text,
-      "manuf_name": prodmanufEditController.text,
-      "prod_serial_num": prodsernumEditController.text,
-      "prod_id": widget.prod_item["prod_id"],
-      "cat_id": widget.prod_item["cat_id"],
-      "stock": prodstockController.text,
-      "product_img": base64Image,
-    };
-    print(bodyData);
-    final response =
-        await http.post(ip + 'easy_shopping/product_edit.php', body: bodyData);
-    print(response.body);
-    if (response.statusCode == 200) {
-      if (response.body == "Success") {
-        Navigator.pop(context);
-        prodnameEditController.clear();
-        prodcodeEditController.clear();
-        prodpriceEditController.clear();
-        proddesEditController.clear();
-        proddimEditController.clear();
-        prodsizeEditController.clear();
-        prodshipEditController.clear();
-        prodmanufEditController.clear();
-        prodsernumEditController.clear();
-        prodstockController.clear();
-        Navigator.pop(context);
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ProductList()));
-      }
+    if (prodnameEditController.text.isEmpty) {
+      showAlert("Product name field is blank");
+    } else if (prodcodeEditController.text.isEmpty) {
+      showAlert("Product code field is blank");
+    } else if (prodpriceEditController.text.isEmpty) {
+      showAlert("Product price field is blank");
+    } else if (prodmanufEditController.text.isEmpty) {
+      showAlert("Manufacturer name field is blank");
+    } else if (prodsernumEditController.text.isEmpty) {
+      showAlert("Product serial number field is blank");
+    } else if (prodstockController.text.isEmpty) {
+      showAlert("Product stock field is blank");
     } else {
-      throw Exception('Unable to edit product from the REST API');
+      if (fileImage != null) {
+        List<int> imageBytes = fileImage.readAsBytesSync();
+        print(imageBytes);
+        base64Image = base64Encode(imageBytes);
+      }
+      var bodyData = {
+        "product_name": prodnameEditController.text,
+        "product_code": prodcodeEditController.text,
+        "product_price": prodpriceEditController.text,
+        "prod_description": proddesEditController.text,
+        "prod_dimension": proddimEditController.text,
+        "product_size": prodsizeEditController.text,
+        "shipping_weight": prodshipEditController.text,
+        "manuf_name": prodmanufEditController.text,
+        "prod_serial_num": prodsernumEditController.text,
+        "prod_id": widget.prod_item["prod_id"],
+        "cat_id": widget.prod_item["cat_id"],
+        "stock": prodstockController.text,
+        "product_img": base64Image,
+      };
+      print(bodyData);
+      final response =
+          await http.post(ip + 'easy_shopping/product_edit.php', body: bodyData);
+      print(response.body);
+      if (response.statusCode == 200) {
+        if (response.body == "Success") {
+          Navigator.pop(context);
+          prodnameEditController.clear();
+          prodcodeEditController.clear();
+          prodpriceEditController.clear();
+          proddesEditController.clear();
+          proddimEditController.clear();
+          prodsizeEditController.clear();
+          prodshipEditController.clear();
+          prodmanufEditController.clear();
+          prodsernumEditController.clear();
+          prodstockController.clear();
+          Navigator.pop(context);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => ProductList()));
+        }
+      } else {
+        throw Exception('Unable to edit product from the REST API');
+      }
     }
   }
 
@@ -195,9 +223,39 @@ class _EditProductState extends State<EditProduct> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Select Category",
-                style: TextStyle(color: subheader, fontSize: 12),
+              Row(
+                children: [
+                  Text(
+                    "Here ",
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                  Text(
+                    "*",
+                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                  ),
+                  Text(
+                    " marked fields are mandatory.",
+                    style: TextStyle(color: Colors.grey, fontSize: 15),
+                  ),
+                ],
+              ),
+              Container(
+                  width: MediaQuery.of(context).size.width - 140,
+                  child: Divider()),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  Text(
+                    "Select Category",
+                    style: TextStyle(color: subheader, fontSize: 12),
+                  ),
+                  Text(
+                    " *",
+                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                  ),
+                ],
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
@@ -233,11 +291,20 @@ class _EditProductState extends State<EditProduct> {
                       ),
               ),
               Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Name",
-                    style: TextStyle(color: subheader, fontSize: 12),
-                  )),
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      "Product Name",
+                      style: TextStyle(color: subheader, fontSize: 12),
+                    ),
+                    Text(
+                      " *",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    ),
+                  ],
+                )
+              ),
               Container(
                 padding: EdgeInsets.all(5),
                 margin: EdgeInsets.only(top: 10),
@@ -251,11 +318,20 @@ class _EditProductState extends State<EditProduct> {
                 ),
               ),
               Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Code",
-                    style: TextStyle(color: subheader, fontSize: 12),
-                  )),
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      "Product Code",
+                      style: TextStyle(color: subheader, fontSize: 12),
+                    ),
+                    Text(
+                      " *",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    ),
+                  ],
+                )
+              ),
               Container(
                 padding: EdgeInsets.all(5),
                 margin: EdgeInsets.only(top: 10),
@@ -269,11 +345,19 @@ class _EditProductState extends State<EditProduct> {
                 ),
               ),
               Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Price",
-                    style: TextStyle(color: subheader, fontSize: 12),
-                  )),
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      "Product Price",
+                      style: TextStyle(color: subheader, fontSize: 12),
+                    ),
+                    Text(
+                      " *",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    ),
+                  ],
+                )),
               Container(
                 padding: EdgeInsets.all(5),
                 margin: EdgeInsets.only(top: 10),
@@ -363,10 +447,18 @@ class _EditProductState extends State<EditProduct> {
                 ),
               ),
               Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Manufacturer Name",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                    children: [
+                      Text(
+                        "Manufacturer Name",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -382,10 +474,18 @@ class _EditProductState extends State<EditProduct> {
                 ),
               ),
               Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Serial Number",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                    children: [
+                      Text(
+                        "Product Serial Number",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),
@@ -402,9 +502,17 @@ class _EditProductState extends State<EditProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Stock",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Stock",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),

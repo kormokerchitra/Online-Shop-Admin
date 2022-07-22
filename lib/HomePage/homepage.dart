@@ -7,6 +7,7 @@ import 'package:online_shopping_admin/CategoryList/categoryList.dart';
 import 'package:online_shopping_admin/DiscountList/discountList.dart';
 import 'package:online_shopping_admin/LoginPage/loginPage.dart';
 import 'package:online_shopping_admin/MyProfilePage/myProfilePage.dart';
+import 'package:online_shopping_admin/NotificationPage/notifications.dart';
 import 'package:online_shopping_admin/OrderList/orderList.dart';
 import 'package:online_shopping_admin/ProductList/productList.dart';
 import 'package:online_shopping_admin/ReviewList/reviewList.dart';
@@ -28,12 +29,53 @@ class _HomePageState extends State<HomePage> {
       category_count = "0",
       order_count = "0",
       voucher_count = "0",
-      review_count = "0";
+      review_count = "0",
+      notification_count = "0";
+  String userID = "";
+  var userInfo;
+  List notifyList = [];
+  int notifCount = 0;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getUserID();
     getCounter();
+  }
+
+  getUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString("userId");
+    userInfo = json.decode(userData);
+    userID = "${userInfo["user_info"]["user_id"]}";
+    getNotification();
+  }
+
+  Future<void> getNotification() async {
+    final response = await http.post(
+        ip + 'easy_shopping/notification_all_list.php',
+        body: {"receiver": userID});
+    if (response.statusCode == 200) {
+      print(response.body);
+      var notifyBody = json.decode(response.body);
+      print(notifyBody["notification_list"]);
+
+      setState(() {
+        var notifList = notifyBody["notification_list"];
+        for (int i = 0; i < notifList.length; i++) {
+          if (notifList[i]["seen"] == "0") {
+            notifCount++;
+            notification_count = "$notifCount";
+          }
+          notifyList.add(notifList[i]);
+        }
+
+        print("notifylist - $notifyList");
+        print("notifylist_count - $notification_count");
+      });
+    } else {
+      throw Exception('Unable to fetch counter from the REST API');
+    }
   }
 
   logout() async {
@@ -268,30 +310,80 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: drawer,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Center(
-          child: Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(width: 30, child: Image.asset('assets/logo.jpg')),
-                SizedBox(
-                  width: 5,
-                ),
-                Text("Easy Shopping Admin",
-                    style: TextStyle(
-                        color: subheader,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold)),
-              ],
+          backgroundColor: Colors.white,
+          title: Center(
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(width: 30, child: Image.asset('assets/logo.jpg')),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text("Easy Shopping Admin",
+                      style: TextStyle(
+                          color: subheader,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  notifCount = 0;
+                  notification_count = "0";
+                });
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => NotifyPage(notifyList)),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(top: 10),
+                child: Stack(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(Icons.notifications, color: subheader),
+                    ),
+                    notifCount == 0
+                        ? Container()
+                        : Container(
+                            margin: EdgeInsets.only(left: 20),
+                            padding: EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                                color: Colors.redAccent,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Text(notification_count,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.normal)),
+                          )
+                  ],
+                ),
+              ),
+            )
+          ]),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
         child: Column(
           children: [
+            Container(
+                margin: EdgeInsets.only(top: 10, bottom: 5),
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Dashboard",
+                  style: TextStyle(
+                      fontSize: 19,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.bold),
+                )),
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -300,7 +392,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+                margin: EdgeInsets.only(top: 10, right: 30, left: 30),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -333,7 +425,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(top: 10, right: 20, left: 20),
+                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -366,7 +458,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(top: 10, right: 20, left: 20),
+                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -395,44 +487,11 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => OrderList()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 10, right: 20, left: 20),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.shopping_cart,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Orders ($order_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
                   MaterialPageRoute(builder: (context) => DiscountList()),
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(top: 10, right: 20, left: 20),
+                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -461,11 +520,44 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.push(
                   context,
+                  MaterialPageRoute(builder: (context) => OrderList()),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: subheader,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(width: 0.5, color: subheader)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.shopping_cart,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "Total Orders ($order_count)",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
                   MaterialPageRoute(builder: (context) => AllCouponPage()),
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(top: 10, right: 20, left: 20),
+                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -498,7 +590,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(top: 10, right: 20, left: 20),
+                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(

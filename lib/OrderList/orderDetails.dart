@@ -33,13 +33,6 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
   bool _requireConsent = false;
   var dd, finalDate;
   DateTime _date = DateTime.now();
-  List statusList = [
-    "Processing",
-    "Picked",
-    "Shipped",
-    "Delivered",
-    "Cancelled"
-  ];
   List productList = [];
   double totalPrice = 0.0,
       discTotal = 0.0,
@@ -113,11 +106,9 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
   }
 
   Future<void> fetchOrderProduct() async {
-    final response = await http
-        .post(ip + 'easy_shopping/order_product_by_id.php', body: {
-      "order_id": widget.orderDetails["order_id"],
-      "user_id": ""
-    });
+    final response = await http.post(
+        ip + 'easy_shopping/order_product_by_id.php',
+        body: {"order_id": widget.orderDetails["order_id"], "user_id": ""});
     if (response.statusCode == 200) {
       print(response.body);
       var reviewBody = json.decode(response.body);
@@ -145,6 +136,28 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
         await http.post(ip + 'easy_shopping/order_status_edit.php', body: {
       "status": status,
       "order_id": order_id,
+    });
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      editNotification(status);
+    } else {
+      throw Exception('Unable to edit order status from the REST API');
+    }
+  }
+
+  editNotification(String status) async {
+    print({
+      "status": status,
+      "inv_id": widget.orderDetails["inv_id"],
+      "receiver": widget.orderDetails["user_id"],
+      "sender": userID,
+    });
+    final response =
+        await http.post(ip + 'easy_shopping/notification_update.php', body: {
+      "status": status,
+      "inv_id": widget.orderDetails["inv_id"],
+      "receiver": widget.orderDetails["user_id"],
+      "sender": userID,
     });
     print(response.statusCode);
     if (response.statusCode == 200) {
@@ -213,21 +226,21 @@ class OrderDetailsPageState extends State<OrderDetailsPage>
                                 Divider(),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children:
-                                      List.generate(statusList.length, (index) {
+                                  children: List.generate(
+                                      Utils.statusList.length, (index) {
                                     return GestureDetector(
                                       onTap: () {
                                         Navigator.pop(context);
                                         setState(() {
-                                          statustxt = statusList[index];
+                                          statustxt = Utils.statusList[index];
                                         });
-                                        editOrder(statusList[index],
+                                        editOrder(Utils.statusList[index],
                                             widget.orderDetails["order_id"]);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(10.0),
                                         child: Text(
-                                          statusList[index],
+                                          Utils.statusList[index],
                                           style: TextStyle(
                                               fontSize: 17, color: Colors.grey),
                                         ),
