@@ -13,6 +13,7 @@ class ReviewProductlist extends StatefulWidget {
 
 class _ReviewProductlistState extends State<ReviewProductlist> {
   var prodList = [];
+  String rating = "0.0";
 
   @override
   void initState() {
@@ -74,151 +75,156 @@ class _ReviewProductlistState extends State<ReviewProductlist> {
           child: Container(
             child: Column(
               children: List.generate(prodList.length, (index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ReviewList(
-                              prodList[index]["prod_id"],
-                              prodList[index]["cat_id"],
-                              prodList[index]["product_name"])),
-                    );
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(left: 20, right: 20, top: 0),
-                    child: Card(
-                      child: Container(
-                        padding: EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    "${prodList[index]["product_name"]}",
-                                    style: TextStyle(fontSize: 17),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 5),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.category,
-                                            color: Colors.black38),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                          "${prodList[index]["cat_name"]}",
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.black38),
-                                        ),
-                                      ],
+                double proRating = double.parse(prodList[index]["prod_rating"]);
+                rating = "${proRating.toStringAsFixed(2)}";
+                return prodList[index]["prod_rating"] != "0"
+                  ? GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ReviewList(
+                                prodList[index]["prod_id"],
+                                prodList[index]["cat_id"],
+                                prodList[index]["product_name"])),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(left: 20, right: 20, top: 0),
+                      child: Card(
+                        child: Container(
+                          padding: EdgeInsets.all(15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "${prodList[index]["product_name"]}",
+                                      style: TextStyle(fontSize: 17),
                                     ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 5),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.star, color: subheader),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                          "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
-                                          style: TextStyle(
-                                              fontSize: 15,
+                                    Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.category,
                                               color: Colors.black38),
-                                        ),
-                                      ],
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            "${prodList[index]["cat_name"]}",
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.black38),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                //showDialog(
-                                  //context: context,
-                                  //barrierDismissible: true,
-                                  //builder: (BuildContext context) {
-                                    //return Expanded(
-                                      //child: AlertDialog(
-                                        //title: Column(
-                                          //crossAxisAlignment:
-                                              //CrossAxisAlignment.start,
-                                          //children: [
-                                            //Text('Reply'),
-                                            //Container(
-                                              //padding: EdgeInsets.all(5),
-                                              //margin: EdgeInsets.only(top: 10),
-                                              //decoration: BoxDecoration(
-                                                  //border: Border.all(
-                                                      //width: 0.3,
-                                                      //color: Colors.grey),
-                                                  //borderRadius:
-                                                      //BorderRadius.circular(5)),
-                                              //child: TextField(
-                                                //controller: categoryController,
-                                                //decoration: InputDecoration(
-                                                    //hintText: "Enter reply...",
-                                                    //border: InputBorder.none),
-                                              //),
-                                            //),
-                                            //GestureDetector(
-                                              //onTap: () {
-                                                //// if (categoryController.text != "") {
-                                                //// addCategory(categoryController.text);
-                                                //// }
-                                              //},
-                                              //child: Container(
-                                                  //width: MediaQuery.of(context)
-                                                      //.size
-                                                      //.width,
-                                                  //margin: EdgeInsets.only(
-                                                      //bottom: 20, top: 10),
-                                                  //padding: EdgeInsets.all(10),
-                                                  //decoration: BoxDecoration(
-                                                      //borderRadius:
-                                                          //BorderRadius.all(
-                                                              //Radius.circular(
-                                                                  //5.0)),
-                                                      //color: mainheader,
-                                                      //border: Border.all(
-                                                          //width: 0.2,
-                                                          //color: Colors.grey)),
-                                                  //child: Text(
-                                                    //"Submit",
-                                                    //style: TextStyle(
-                                                        //color: Colors.white),
-                                                    //textAlign: TextAlign.center,
-                                                  //)),
-                                            //),
-                                          //],
-                                        //),
-                                      //),
-                                    //);
-                                  //},
-                                //);
-                              },
-                              child: Container(
-                                margin: EdgeInsets.only(right: 10),
-                                child: Icon(
-                                  Icons.chevron_right,
-                                  color: Colors.grey,
-                                  size: 20,
+                                    Container(
+                                      margin: EdgeInsets.only(top: 5),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.star, color: subheader),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            // "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
+                                            "$rating (${prodList[index]["rev_count"]})",
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.black38),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            )
-                          ],
+                              GestureDetector(
+                                onTap: () {
+                                  //showDialog(
+                                    //context: context,
+                                    //barrierDismissible: true,
+                                    //builder: (BuildContext context) {
+                                      //return Expanded(
+                                        //child: AlertDialog(
+                                          //title: Column(
+                                            //crossAxisAlignment:
+                                                //CrossAxisAlignment.start,
+                                            //children: [
+                                              //Text('Reply'),
+                                              //Container(
+                                                //padding: EdgeInsets.all(5),
+                                                //margin: EdgeInsets.only(top: 10),
+                                                //decoration: BoxDecoration(
+                                                    //border: Border.all(
+                                                        //width: 0.3,
+                                                        //color: Colors.grey),
+                                                    //borderRadius:
+                                                        //BorderRadius.circular(5)),
+                                                //child: TextField(
+                                                  //controller: categoryController,
+                                                  //decoration: InputDecoration(
+                                                      //hintText: "Enter reply...",
+                                                      //border: InputBorder.none),
+                                                //),
+                                              //),
+                                              //GestureDetector(
+                                                //onTap: () {
+                                                  //// if (categoryController.text != "") {
+                                                  //// addCategory(categoryController.text);
+                                                  //// }
+                                                //},
+                                                //child: Container(
+                                                    //width: MediaQuery.of(context)
+                                                        //.size
+                                                        //.width,
+                                                    //margin: EdgeInsets.only(
+                                                        //bottom: 20, top: 10),
+                                                    //padding: EdgeInsets.all(10),
+                                                    //decoration: BoxDecoration(
+                                                        //borderRadius:
+                                                            //BorderRadius.all(
+                                                                //Radius.circular(
+                                                                    //5.0)),
+                                                        //color: mainheader,
+                                                        //border: Border.all(
+                                                            //width: 0.2,
+                                                            //color: Colors.grey)),
+                                                    //child: Text(
+                                                      //"Submit",
+                                                      //style: TextStyle(
+                                                          //color: Colors.white),
+                                                      //textAlign: TextAlign.center,
+                                                    //)),
+                                              //),
+                                            //],
+                                          //),
+                                        //),
+                                      //);
+                                    //},
+                                  //);
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 10),
+                                  child: Icon(
+                                    Icons.chevron_right,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
+                  )
+                : Container();
               }),
             ),
           ),

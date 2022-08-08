@@ -100,6 +100,8 @@ class _AddProductState extends State<AddProduct> {
       showAlert("Product code field is blank");
     } else if (prodpriceController.text.isEmpty) {
       showAlert("Product price field is blank");
+    } else if (proddesController.text.isEmpty) {
+      showAlert("Product description field is blank");
     } else if (proddiscController.text.isEmpty) {
       showAlert("Product discount field is blank");
     } else if (prodmanufController.text.isEmpty) {
@@ -373,9 +375,17 @@ class _AddProductState extends State<AddProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Description",
-                    style: TextStyle(color: subheader, fontSize: 12),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Description",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
                   )),
               Container(
                 padding: EdgeInsets.all(5),

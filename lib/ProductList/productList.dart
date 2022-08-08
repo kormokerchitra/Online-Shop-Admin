@@ -26,6 +26,7 @@ class _ProductListState extends State<ProductList> {
   TextEditingController productEditController = new TextEditingController();
 
   int discountPercent = 0, discountAmt = 0;
+  String rating = "0.0";
 
   @override
   void initState() {
@@ -166,6 +167,8 @@ class _ProductListState extends State<ProductList> {
               discountAmt = Utils().getProductDiscount(
                   prodList[index]["product_price"],
                   prodList[index]["prod_discount"]);
+              double proRating = double.parse(prodList[index]["prod_rating"]);
+              rating = "${proRating.toStringAsFixed(2)}";
               return widget.cat_id != null
                   ? prodList[index]["cat_id"] == widget.cat_id
                       ? bodydata(index, img)
@@ -235,7 +238,8 @@ class _ProductListState extends State<ProductList> {
                                   Container(
                                     margin: EdgeInsets.only(left: 3),
                                     child: Text(
-                                      "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
+                                      // "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
+                                      "$rating (${prodList[index]["rev_count"]})",
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                   )

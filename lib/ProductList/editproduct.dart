@@ -109,6 +109,8 @@ class _EditProductState extends State<EditProduct> {
       showAlert("Product code field is blank");
     } else if (prodpriceEditController.text.isEmpty) {
       showAlert("Product price field is blank");
+    } else if (proddesEditController.text.isEmpty) {
+      showAlert("Product description field is blank");
     } else if (prodmanufEditController.text.isEmpty) {
       showAlert("Manufacturer name field is blank");
     } else if (prodsernumEditController.text.isEmpty) {
@@ -373,10 +375,18 @@ class _EditProductState extends State<EditProduct> {
               ),
               Container(
                   margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Product Description",
-                    style: TextStyle(color: subheader, fontSize: 12),
-                  )),
+                  child: Row(
+                  children: [
+                    Text(
+                      "Product Description",
+                      style: TextStyle(color: subheader, fontSize: 12),
+                    ),
+                    Text(
+                      " *",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    ),
+                  ],
+                )),
               Container(
                 padding: EdgeInsets.all(5),
                 margin: EdgeInsets.only(top: 10),

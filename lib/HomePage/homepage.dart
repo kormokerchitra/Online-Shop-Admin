@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   var userInfo;
   List notifyList = [];
   int notifCount = 0;
+  bool isLoading = true;
   @override
   void initState() {
     // TODO: implement initState
@@ -54,16 +55,18 @@ class _HomePageState extends State<HomePage> {
   Future<void> getNotification() async {
     final response = await http.post(
         ip + 'easy_shopping/notification_all_list.php',
-        body: {"receiver": userID});
+        body: {"receiver": "admin"});
     if (response.statusCode == 200) {
       print(response.body);
       var notifyBody = json.decode(response.body);
       print(notifyBody["notification_list"]);
 
       setState(() {
+        isLoading = false;
         var notifList = notifyBody["notification_list"];
         for (int i = 0; i < notifList.length; i++) {
-          if (notifList[i]["seen"] == "0") {
+          if (notifList[i]["seen"] == "0" &&
+              notifList[i]["receiver"] == userID) {
             notifCount++;
             notification_count = "$notifCount";
           }
@@ -90,12 +93,14 @@ class _HomePageState extends State<HomePage> {
   //String pro_pic = "";
 
   Future<void> getCounter() async {
+    isLoading = true;
     final response = await http.get(ip + 'easy_shopping/dashboard_counter.php');
     if (response.statusCode == 200) {
       print(response.body);
       var prodBody = json.decode(response.body);
       print(prodBody["user_count"]);
       setState(() {
+        isLoading = false;
         user_count = "${prodBody["user_count"]}";
         product_count = "${prodBody["product_count"]}";
         discount_count = "${prodBody["discount_count"]}";
@@ -107,6 +112,27 @@ class _HomePageState extends State<HomePage> {
     } else {
       throw Exception('Unable to fetch counter from the REST API');
     }
+  }
+
+  doneMsg() {
+    showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return new Container(
+            height: 100.0,
+            color: Colors.transparent, //could change this to Color(0xFF737373),
+            //so you don't have to change MaterialApp canvasColor
+            child: new Container(
+                decoration: new BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: new BorderRadius.only(
+                        topLeft: const Radius.circular(10.0),
+                        topRight: const Radius.circular(10.0))),
+                child: new Center(
+                  child: new Text("Refresh succesfully!"),
+                )),
+          );
+        });
   }
 
   @override
@@ -368,256 +394,281 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  isLoading = true;
+                });
+                getNotification();
+                getCounter();
+              },
+              child: Container(
+                margin: EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.refresh_outlined, color: subheader),
+              ),
             )
           ]),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            Container(
-                margin: EdgeInsets.only(top: 10, bottom: 5),
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Dashboard",
-                  style: TextStyle(
-                      fontSize: 19,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold),
-                )),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UserList()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 10, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.person,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total User ($user_count)",
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Container(
+                      margin: EdgeInsets.only(top: 10, bottom: 5),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Dashboard",
                         style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                            fontSize: 19,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold),
+                      )),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => UserList()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 10, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total User ($user_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CategoryList()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.category,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total Category ($category_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ProductList()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.list,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total Products ($product_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DiscountList()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.format_list_numbered,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total Discount Products ($discount_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => OrderList()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.shopping_cart,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total Orders ($order_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AllCouponPage()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.local_activity,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total Voucher/Coupon ($voucher_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ReviewProductlist()),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 15, right: 30, left: 30),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                            color: subheader,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: subheader)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.star,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Total Review ($review_count)",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CategoryList()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.category,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Category ($category_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProductList()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.list,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Products ($product_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DiscountList()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.format_list_numbered,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Discount Products ($discount_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => OrderList()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.shopping_cart,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Orders ($order_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AllCouponPage()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.local_activity,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Voucher/Coupon ($voucher_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ReviewProductlist()),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.only(top: 15, right: 30, left: 30),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: subheader,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0.5, color: subheader)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.star,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Total Review ($review_count)",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

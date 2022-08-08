@@ -27,7 +27,7 @@ class DetailsPageState extends State<DetailsPage>
   Animation<double> animation;
   AnimationController controller;
   bool _isLoggedIn = false;
-  String _debugLabelString = "", review = '', _ratingStatus = '';
+  String _debugLabelString = "", review = '', _ratingStatus = '', rating = "0.0";
   bool _requireConsent = false, isfav = false;
   int _current = 0,
       num = 0,
@@ -60,6 +60,9 @@ class DetailsPageState extends State<DetailsPage>
         widget.product_info["product_price"],
         widget.product_info["prod_discount"]);
     quantity = int.parse(widget.product_info["prod_quantity"]);
+
+    double proRating = double.parse(widget.product_info["prod_rating"]);
+    rating = "${proRating.toStringAsFixed(2)}";
   }
 
   int _rating = 0;
@@ -574,7 +577,8 @@ class DetailsPageState extends State<DetailsPage>
                                 Container(
                                   margin: EdgeInsets.only(left: 3),
                                   child: Text(
-                                    "${widget.product_info["prod_rating"]} (${widget.product_info["rev_count"]})",
+                                    // "${widget.product_info["prod_rating"]} (${widget.product_info["rev_count"]})",
+                                    "$rating (${widget.product_info["rev_count"]})",
                                     //widget.product_info["prod_rating"],
                                     style: TextStyle(color: Colors.grey),
                                   ),

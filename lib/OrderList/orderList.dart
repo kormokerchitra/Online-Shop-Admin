@@ -176,7 +176,7 @@ class _OrderListState extends State<OrderList> {
                       ),
                       filterType[selectedIndex]["count"] == "0"
                           ? Container(
-                            margin: EdgeInsets.only(top: 20),
+                            margin: EdgeInsets.only(top: 40),
                             child: Text("No data available"))
                           : Container(
                               child: Column(
