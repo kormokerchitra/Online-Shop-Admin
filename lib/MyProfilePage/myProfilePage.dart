@@ -20,7 +20,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
   var userInfo;
   bool loader = false;
   TextEditingController _fullNameController = TextEditingController();
-  //TextEditingController _userNameController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
