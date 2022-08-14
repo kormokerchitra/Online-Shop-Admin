@@ -23,6 +23,7 @@ class _EditProductState extends State<EditProduct> {
   TextEditingController prodnameEditController = new TextEditingController();
   TextEditingController prodcodeEditController = new TextEditingController();
   TextEditingController prodpriceEditController = new TextEditingController();
+  TextEditingController prodcolorEditController = new TextEditingController();
   TextEditingController proddesEditController = new TextEditingController();
   TextEditingController proddimEditController = new TextEditingController();
   TextEditingController prodsizeEditController = new TextEditingController();
@@ -50,6 +51,7 @@ class _EditProductState extends State<EditProduct> {
       prodnameEditController.text = widget.prod_item["product_name"];
       prodcodeEditController.text = widget.prod_item["product_code"];
       prodpriceEditController.text = widget.prod_item["product_price"];
+      prodcolorEditController.text = widget.prod_item["prod_color"];
       proddesEditController.text = widget.prod_item["prod_description"];
       proddimEditController.text = widget.prod_item["prod_dimension"];
       prodsizeEditController.text = widget.prod_item["product_size"];
@@ -109,6 +111,8 @@ class _EditProductState extends State<EditProduct> {
       showAlert("Product code field is blank");
     } else if (prodpriceEditController.text.isEmpty) {
       showAlert("Product price field is blank");
+    } else if (prodcolorEditController.text.isEmpty) {
+      showAlert("Product color field is blank");
     } else if (proddesEditController.text.isEmpty) {
       showAlert("Product description field is blank");
     } else if (prodmanufEditController.text.isEmpty) {
@@ -127,6 +131,7 @@ class _EditProductState extends State<EditProduct> {
         "product_name": prodnameEditController.text,
         "product_code": prodcodeEditController.text,
         "product_price": prodpriceEditController.text,
+        "prod_color": prodcolorEditController.text,
         "prod_description": proddesEditController.text,
         "prod_dimension": proddimEditController.text,
         "product_size": prodsizeEditController.text,
@@ -148,6 +153,7 @@ class _EditProductState extends State<EditProduct> {
           prodnameEditController.clear();
           prodcodeEditController.clear();
           prodpriceEditController.clear();
+          prodcolorEditController.clear();
           proddesEditController.clear();
           proddimEditController.clear();
           prodsizeEditController.clear();
@@ -370,6 +376,33 @@ class _EditProductState extends State<EditProduct> {
                   controller: prodpriceEditController,
                   decoration: InputDecoration(
                       hintText: "Enter product price",
+                      border: InputBorder.none),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      "Product Color",
+                      style: TextStyle(color: subheader, fontSize: 12),
+                    ),
+                    Text(
+                      " *",
+                      style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                    ),
+                  ],
+                )),
+              Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.3, color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5)),
+                child: TextField(
+                  controller: prodcolorEditController,
+                  decoration: InputDecoration(
+                      hintText: "Enter product color",
                       border: InputBorder.none),
                 ),
               ),

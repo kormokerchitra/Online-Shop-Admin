@@ -21,7 +21,7 @@ class SearchPageState extends State<SearchPage>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
-  String result = '';
+  String result = '', rating = "0.0";
   TextEditingController searchController = TextEditingController();
   var productBody;
   var prodList = [];
@@ -187,6 +187,8 @@ class SearchPageState extends State<SearchPage>
                                   discountAmt = Utils().getProductDiscount(
                                       prodList[index]["product_price"],
                                       prodList[index]["prod_discount"]);
+                                  double proRating = double.parse(prodList[index]["prod_rating"]);
+                                  rating = "${proRating.toStringAsFixed(2)}";
                                   return bodydata(index, img);
                                 })),
                               ),
@@ -257,7 +259,7 @@ class SearchPageState extends State<SearchPage>
                                   Container(
                                     margin: EdgeInsets.only(left: 3),
                                     child: Text(
-                                      "${prodList[index]["prod_rating"]} (${prodList[index]["rev_count"]})",
+                                      "$rating (${prodList[index]["rev_count"]})",
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                   )

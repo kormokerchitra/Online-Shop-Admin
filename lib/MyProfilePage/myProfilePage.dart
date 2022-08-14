@@ -134,6 +134,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                           width: 0.5, color: Colors.grey)),
                                   child: TextFormField(
                                     controller: _fullNameController,
+                                    enabled: false,
                                     autofocus: false,
                                     decoration: InputDecoration(
                                       icon: const Icon(
@@ -201,6 +202,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                           width: 0.5, color: Colors.grey)),
                                   child: TextFormField(
                                     controller: _addressController,
+                                    enabled: false,
                                     autofocus: false,
                                     decoration: InputDecoration(
                                       icon: const Icon(

@@ -483,6 +483,24 @@ class DetailsPageState extends State<DetailsPage>
                       Row(
                         children: <Widget>[
                           Text(
+                            "Color: ",
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black45),
+                          ),
+                          Text(
+                              widget.product_info["prod_color"] == ""
+                                  ? "N/A"
+                                  : "${widget.product_info["prod_color"]}",
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.black54))
+                        ],
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
                             "Stock: ",
                             style:
                                 TextStyle(fontSize: 16, color: Colors.black45),

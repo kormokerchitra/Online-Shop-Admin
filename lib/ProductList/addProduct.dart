@@ -19,6 +19,7 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController proddesController = new TextEditingController();
   TextEditingController proddiscController = new TextEditingController();
   TextEditingController proddiscdateController = new TextEditingController();
+  TextEditingController prodcolorController = new TextEditingController();
   TextEditingController proddimController = new TextEditingController();
   TextEditingController prodsizeController = new TextEditingController();
   TextEditingController prodshipController = new TextEditingController();
@@ -100,6 +101,8 @@ class _AddProductState extends State<AddProduct> {
       showAlert("Product code field is blank");
     } else if (prodpriceController.text.isEmpty) {
       showAlert("Product price field is blank");
+    } else if (prodcolorController.text.isEmpty) {
+      showAlert("Product color field is blank");
     } else if (proddesController.text.isEmpty) {
       showAlert("Product description field is blank");
     } else if (proddiscController.text.isEmpty) {
@@ -124,6 +127,7 @@ class _AddProductState extends State<AddProduct> {
         "product_price": prodpriceController.text,
         "prod_discount": proddiscController.text,
         "prod_disc_date": proddiscdateController.text,
+        "prod_color": prodcolorController.text,
         "prod_description": proddesController.text,
         "prod_dimension": proddimController.text,
         "product_size": prodsizeController.text,
@@ -148,6 +152,7 @@ class _AddProductState extends State<AddProduct> {
         proddesController.clear();
         proddiscController.clear();
         proddiscdateController.clear();
+        prodcolorController.clear();
         proddimController.clear();
         prodsizeController.clear();
         prodshipController.clear();
@@ -370,6 +375,33 @@ class _AddProductState extends State<AddProduct> {
                   controller: prodpriceController,
                   decoration: InputDecoration(
                       hintText: "Enter product price",
+                      border: InputBorder.none),
+                ),
+              ),
+              Container(
+                  margin: EdgeInsets.only(top: 20),
+                  child: Row(
+                    children: [
+                      Text(
+                        "Product Color",
+                        style: TextStyle(color: subheader, fontSize: 12),
+                      ),
+                      Text(
+                        " *",
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                    ],
+                  )),
+              Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.only(top: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(width: 0.3, color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5)),
+                child: TextField(
+                  controller: prodcolorController,
+                  decoration: InputDecoration(
+                      hintText: "Enter product color",
                       border: InputBorder.none),
                 ),
               ),
